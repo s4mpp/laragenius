@@ -1,0 +1,26 @@
+{
+    "name": "samuelpacheco/laragenius",
+    "description": "Gerador de models para Laravel",
+    "autoload": {
+        "psr-4": {
+            "Samuelpacheco\\Laragenius\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Samuel Pacheco",
+            "email": "samuelpacheco.dev@gmail.com"
+        }
+    ],
+    "require": {},
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Samuelpacheco\\Laragenius\\LarageniusServiceProvider"
+            ]
+        }
+    }
+}
+
+
+
