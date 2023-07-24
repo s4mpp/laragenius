@@ -4,8 +4,8 @@ namespace SamuelPacheco\Laragenius;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Console\AboutCommand;
-use Samuelpacheco\Laragenius\Console\Commands\InstallCommand;
- 
+use Samuelpacheco\Laragenius\Commands\InstallCommand;
+  
 class LarageniusServiceProvider extends ServiceProvider 
 {
     public function boot()
