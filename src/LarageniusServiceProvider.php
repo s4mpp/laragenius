@@ -5,6 +5,7 @@ namespace SamuelPacheco\Laragenius;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Console\AboutCommand;
 use Samuelpacheco\Laragenius\Commands\InstallCommand;
+use Samuelpacheco\Laragenius\Commands\NewResourceCommand;
   
 class LarageniusServiceProvider extends ServiceProvider 
 {
@@ -15,7 +16,8 @@ class LarageniusServiceProvider extends ServiceProvider
 		if($this->app->runningInConsole())
 		{
 			$this->commands([
-				InstallCommand::class
+				InstallCommand::class,
+				NewResourceCommand::class,
 			]);
 		}
     }
