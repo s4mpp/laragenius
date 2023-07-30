@@ -5,8 +5,13 @@ use Illuminate\Support\Str;
 
 class Utils
 {
-	public static function nameModel(string $name_resource)
+	public static function nameModel(string $resource_name)
 	{
-		return Str::ucfirst(Str::camel(Str::lower($name_resource)));
+		return Str::ucfirst(Str::camel(Str::lower($resource_name)));
+	}
+
+	public static function nameTable(string $resource_name)
+	{
+		return Str::snake(Str::plural(Str::lower($resource_name)));
 	}
 }

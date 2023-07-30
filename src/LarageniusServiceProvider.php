@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Console\AboutCommand;
 use Samuelpacheco\Laragenius\Commands\InstallCommand;
 use Samuelpacheco\Laragenius\Commands\NewResourceCommand;
+use Samuelpacheco\Laragenius\Commands\CreateResourceCommand;
   
 class LarageniusServiceProvider extends ServiceProvider 
 {
@@ -18,6 +19,7 @@ class LarageniusServiceProvider extends ServiceProvider
 			$this->commands([
 				InstallCommand::class,
 				NewResourceCommand::class,
+				CreateResourceCommand::class,
 			]);
 		}
     }

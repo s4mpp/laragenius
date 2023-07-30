@@ -1,0 +1,4 @@
+    public function {{ FIELD }}()
+    {
+        return $this->{{ TYPE }}({{ MODEL }}::class);
+    }

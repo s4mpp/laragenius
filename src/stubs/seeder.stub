@@ -1,0 +1,18 @@
+<?php
+
+namespace Database\Seeders;
+
+{{ USES }}
+
+class {{ CLASS }}Seeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        {{ CLASS }}::factory()->count(10)->create();
+    }
+}

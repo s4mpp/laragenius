@@ -11,10 +11,10 @@ class NewResourceCommand extends Command
 	protected $signature = 'lg:new-resource
                             {resource_name : Name of resource}
                             {--fields= : Fields of registers}
-                            {--relations= : Relations of foreignk keys};
+                            {--relations= : Relations of foreignk keys}
                             {--enums= : Enums to related fields}';
 
-	protected $description = 'Create a new resource';
+	protected $description = 'Create a new resource configuration file';
 
 	public function handle(): void
     {
@@ -29,11 +29,11 @@ class NewResourceCommand extends Command
 
 		$file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
 
-        File::put($file_path, json_encode(self::_getFileStructure(
+        File::put($file_path, json_encode($this->_getFileStructure(
             $resource_name,
-            self::_getFields($fields),
-            self::_getRelations($relations),
-            self::_getEnums($resource_name, $enums),
+            $this->_getFields($fields),
+            $this->_getRelations($relations),
+            $this->_getEnums($resource_name, $enums),
         ), JSON_PRETTY_PRINT));
         
         $this->info("File ".$file_name.".json created.");
@@ -43,14 +43,13 @@ class NewResourceCommand extends Command
     {
         return [
             'name' => Utils::nameModel($resource_name),
-            'table' => Str::snake(Str::plural(Str::lower($resource_name))),
             'fields' => $fields,
             'relations' => $relations,
             'enums' => $enums,
         ];
     }
 
-    private static function _getFields(string $fields = null)
+    private  function _getFields(string $fields = null)
     {
         $fields = array_filter(explode(',', $fields));
 
@@ -63,6 +62,13 @@ class NewResourceCommand extends Command
             $name = $exp[0];
             $type = $exp[1] ?? 'string';
 
+            if(!in_array($type, ['string', 'text', 'date', 'decimal', 'integer', 'tinyInteger']))
+            {
+                $this->error('Invalid field type for field '. $name);
+                
+                continue;
+            }
+
             $fields_mounted[] = [
                 'type' => Str::lower($type),
                 'name' => Str::lower($name),
@@ -73,7 +79,7 @@ class NewResourceCommand extends Command
         return $fields_mounted;
     }
 
-    private static function _getRelations(string $relations = null)
+    private  function _getRelations(string $relations = null)
     {
         $relations = array_filter(explode(',', $relations));
 
@@ -91,7 +97,7 @@ class NewResourceCommand extends Command
         return $relations_mounted;
     }
 
-    private static function _getEnums(string $resource_name, string $enums = null)
+    private  function _getEnums(string $resource_name, string $enums = null)
     {
         $enums = array_filter(explode(',', $enums));
 
