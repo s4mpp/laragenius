@@ -62,7 +62,7 @@ class NewResourceCommand extends Command
             $name = $exp[0];
             $type = $exp[1] ?? 'string';
 
-            if(!in_array($type, ['string', 'text', 'date', 'decimal', 'integer', 'tinyInteger']))
+            if(!in_array($type, ['string', 'text', 'date', 'decimal', 'integer', 'tinyInteger', 'bigInteger']))
             {
                 $this->error('Invalid field type for field '. $name);
                 

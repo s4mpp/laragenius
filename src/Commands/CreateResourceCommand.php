@@ -94,10 +94,6 @@ class CreateResourceCommand extends Command
         {
 			switch($field->type)
 			{
-				case 'string':
-					$faker_field = 'fake()->word()';
-					break;
-				
 				case 'text':
 					$faker_field = 'fake()->sentence(10)';
 					break;
@@ -109,15 +105,14 @@ class CreateResourceCommand extends Command
 				case 'decimal':
 					$faker_field = 'fake()->randomFloat(2, 0, 10000)';
 					break;
-				
+								
 				case 'integer':
-					$faker_field = 'fake()->randomDigit()';
-					break;
-				
 				case 'tinyInteger':
+				case 'bigInteger':
 					$faker_field = 'fake()->randomDigit()';
 					break;
 
+				case 'string':
 				default: 
 					$faker_field = 'fake()->word()';
 			}
@@ -224,7 +219,7 @@ class CreateResourceCommand extends Command
             'FIELDS' => join("\n", $fields_migration),
 		]);
 
-		$this->info('migration created successfully');
+		$this->info('Migration created successfully');
 	}
 
 	private function _createEnums(array $enums)
