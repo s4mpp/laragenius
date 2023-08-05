@@ -1,5 +1,5 @@
 <?php
-namespace Samuelpacheco\Laragenius\Commands;
+namespace S4mpp\Laragenius\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 
 class InstallCommand extends Command
 {
-	protected $signature = 'lg:install';
+	protected $signature = 'laragenius:install';
 
 	protected $description = 'Install a Laragenius folder on root of project';
 

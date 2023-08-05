@@ -1,15 +1,15 @@
 <?php
-namespace Samuelpacheco\Laragenius\Commands;
+namespace S4mpp\Laragenius\Commands;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use Samuelpacheco\Laragenius\Utils;
+use S4mpp\Laragenius\Utils;
 use Illuminate\Support\Facades\File;
-use Samuelpacheco\Laragenius\FileManipulation;
+use S4mpp\Laragenius\FileManipulation;
 
 class CreateResourceCommand extends Command
 {
-	protected $signature = 'lg:create-resource
+	protected $signature = 'laragenius:create-resource
                             {resource_name : Name of resource}';
 
 	protected $description = 'Generate files of new resource';

@@ -1,22 +1,22 @@
 {
-    "name": "samuelpacheco/laragenius",
-    "description": "Gerador de models para Laravel",
+    "name": "s4mpp/laragenius",
+    "description": "Gerador de recursos para Laravel",
     "autoload": {
         "psr-4": {
-            "Samuelpacheco\\Laragenius\\": "src/"
+            "S4mpp\\Laragenius\\": "src/"
         }
     },
     "authors": [
         {
             "name": "Samuel Pacheco",
-            "email": "samuelpacheco.dev@gmail.com"
+            "email": "S4mpp.dev@gmail.com"
         }
     ],
     "require": {},
     "extra": {
         "laravel": {
             "providers": [
-                "Samuelpacheco\\Laragenius\\LarageniusServiceProvider"
+                "S4mpp\\Laragenius\\Providers\\LarageniusServiceProvider"
             ]
         }
     }

@@ -1,5 +1,5 @@
 <?php
-namespace Samuelpacheco\Laragenius;
+namespace S4mpp\Laragenius;
 
 use Illuminate\Filesystem\Filesystem;
 

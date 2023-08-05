@@ -1,14 +1,14 @@
 <?php
-namespace Samuelpacheco\Laragenius\Commands;
+namespace S4mpp\Laragenius\Commands;
 
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Samuelpacheco\Laragenius\Utils;
+use S4mpp\Laragenius\Utils;
 
 class NewResourceCommand extends Command
 {
-	protected $signature = 'lg:new-resource
+	protected $signature = 'laragenius:new-resource
                             {resource_name : Name of resource}
                             {--fields= : Fields of registers}
                             {--relations= : Relations of foreignk keys}

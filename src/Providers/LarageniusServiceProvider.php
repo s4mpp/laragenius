@@ -1,19 +1,17 @@
 <?php
 
-namespace SamuelPacheco\Laragenius;
+namespace S4mpp\Laragenius\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\Console\AboutCommand;
-use Samuelpacheco\Laragenius\Commands\InstallCommand;
-use Samuelpacheco\Laragenius\Commands\NewResourceCommand;
-use Samuelpacheco\Laragenius\Commands\CreateResourceCommand;
+use S4mpp\Laragenius\Commands\InstallCommand;
+use S4mpp\Laragenius\Commands\NewResourceCommand;
+use S4mpp\Laragenius\Commands\CreateResourceCommand;
   
 class LarageniusServiceProvider extends ServiceProvider 
 {
     public function boot()
     {
-		AboutCommand::add('Laragenius', fn () => ['Version' => '1.0.0']);
-
 		if($this->app->runningInConsole())
 		{
 			$this->commands([
