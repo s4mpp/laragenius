@@ -1,0 +1,1 @@
+            Column::create('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }},

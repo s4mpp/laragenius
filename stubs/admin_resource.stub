@@ -1,0 +1,28 @@
+<?php
+
+namespace App\AdminPanel;
+
+{{ USES }}
+
+class {{ CLASS }} extends Resource
+{
+    public $title = '';
+
+    public $actions = [{{ ACTIONS }}];
+
+    public function getIndex()
+    {
+        return $this->table()->columns([
+
+{{ TABLE_FIELDS }}
+        ]);
+    }
+
+    public function getForm(int $id = null)
+    {
+        return $this->form($id)->fields([
+            
+{{ FORM_FIELDS }}
+        ]);
+    }
+}

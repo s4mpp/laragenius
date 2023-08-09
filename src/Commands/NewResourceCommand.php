@@ -11,6 +11,7 @@ class NewResourceCommand extends Command
 	protected $signature = 'laragenius:new-resource
                             {resource_name : Name of resource}
                             {--fields= : Fields of registers}
+                            {--actions= : Actions crud}
                             {--relations= : Relations of foreignk keys}
                             {--enums= : Enums to related fields}';
 
@@ -20,6 +21,7 @@ class NewResourceCommand extends Command
     {
         $resource_name = $this->argument('resource_name');
         $fields = $this->option('fields') ?? '';
+        $actions = $this->option('actions') ?? '';
         $relations = $this->option('relations') ?? '';
         $enums = $this->option('enums') ?? '';
 
@@ -32,6 +34,7 @@ class NewResourceCommand extends Command
         File::put($file_path, json_encode($this->_getFileStructure(
             $resource_name,
             $this->_getFields($fields),
+            $this->_getActions($actions),
             $this->_getRelations($relations),
             $this->_getEnums($resource_name, $enums),
         ), JSON_PRETTY_PRINT));
@@ -39,11 +42,13 @@ class NewResourceCommand extends Command
         $this->info("File ".$file_name.".json created.");
     }
 
-    private function _getFileStructure(string $resource_name, array $fields, array $relations, array $enums)
+    private function _getFileStructure(string $resource_name, array $fields, array $actions, array $relations, array $enums)
     {
         return [
             'name' => Utils::nameModel($resource_name),
+            'title' => Str::ucfirst(Str::replace('_', ' ', Utils::nameTable($resource_name))),
             'fields' => $fields,
+            'actions' => $actions,
             'relations' => $relations,
             'enums' => $enums,
         ];
@@ -79,17 +84,41 @@ class NewResourceCommand extends Command
         return $fields_mounted;
     }
 
+    private  function _getActions(string $actions = null)
+    {
+        $actions = array_filter(explode(',', $actions));
+
+        $actions_mounted = [];
+        
+        foreach($actions as $action)
+        {
+            if(!in_array($action, ['create', 'read', 'update', 'delete']))
+            {
+                $this->error('Invalid action: '. $action);
+                
+                continue;
+            }
+
+            $actions_mounted[] = $action;
+        }
+
+        return $actions_mounted;
+    }
+
     private  function _getRelations(string $relations = null)
     {
         $relations = array_filter(explode(',', $relations));
 
         $relations_mounted = [];
         
-        foreach($relations as $model)
+        foreach($relations as $relation)
         {
+            $exp = explode('.', $relation);
+
             $relations_mounted[] = [
-                'field' => Str::lower($model).'_id',
-                'model' => Utils::nameModel($model),
+                'field' => Str::lower($exp[0]).'_id',
+                'model' => Utils::nameModel($exp[0]),
+                'fk_label' => $exp[1] ?? 'id',
                 'type' => 'belongsTo',
             ];
         }

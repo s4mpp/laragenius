@@ -21,7 +21,7 @@ abstract class FileManipulation
 
     public static function getStubContents(string $stub_name, array $stub_variables = [])
     {
-		$origin_stub_content = file_get_contents('stubs/'.$stub_name.'.stub', true);
+		$origin_stub_content = file_get_contents(__DIR__.'/../stubs/'.$stub_name.'.stub', true);
 
         foreach($stub_variables as $search => $replace)
         {

@@ -1,0 +1,1 @@
+			Field::create('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }}{{ NOT_REQUIRED }},

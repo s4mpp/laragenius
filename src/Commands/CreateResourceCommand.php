@@ -10,13 +10,16 @@ use S4mpp\Laragenius\FileManipulation;
 class CreateResourceCommand extends Command
 {
 	protected $signature = 'laragenius:create-resource
-                            {resource_name : Name of resource}';
+                            {resource_name : Name of resource}
+							{--with-admin : Create admin panel resources}';
 
 	protected $description = 'Generate files of new resource';
 
 	public function handle()
     {
         $resource_name = Str::lower($this->argument('resource_name'));
+
+		$with_admin_resources = $this->option('with-admin');
 
 		$file_config = 'laragenius'.DIRECTORY_SEPARATOR.$resource_name.'.json';
 
@@ -27,19 +30,123 @@ class CreateResourceCommand extends Command
 
 		$config = json_decode(file_get_contents($file_config));
 
-		$this->_createModel($config->name, $config->relations, $config->enums);
+		// $this->_createModel($config->name, $config->relations, $config->fields, $config->enums);
 		
-		$this->_createFactory($config->name, $config->fields, $config->relations, $config->enums);
+		// $this->_createFactory($config->name, $config->fields, $config->relations, $config->enums);
 		
-		$this->_createSeeder($config->name);
+		// $this->_createSeeder($config->name);
 		
-		$this->_createMigration($config->name, $config->fields, $config->relations, $config->enums);
+		// $this->_createMigration($config->name, $config->fields, $config->relations, $config->enums);
 		
-		$this->_createEnums($config->enums);
+		// $this->_createEnums($config->enums);
 
+		if($with_admin_resources)
+		{
+			$this->_createAdminResource($config->name, $config->fields, $config->enums, $config->relations, $config->actions ?? []);
+		}
     }
 
-	private function _createModel(string $name_model, array $relations, array $enums)
+	private function _createAdminResource(string $name, array $fields, array $enums, array $relations, array $actions)
+	{
+		$uses = [
+			'use S4mpp\AdminPanel\Form\Field;',
+			'use S4mpp\AdminPanel\Table\Column;',
+			'use S4mpp\AdminPanel\Resources\Resource;',
+		];
+
+		$table_fields = $form_fields = [];
+
+		foreach($relations as $relation)
+		{
+			$uses[] = "use App\Models\\".$relation->model.';';
+
+			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
+				'TITLE'  => Str::replace('_id', '', ucfirst($relation->field)),
+				'NAME'  => Str::replace('_id', '', $relation->field),
+				'MODIFIERS' => "->relation('".$relation->fk_label."')",
+			]);
+
+			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
+				'TITLE'  => Str::replace('_id', '', ucfirst($relation->field)),
+				'NAME'  => $relation->field,
+				'MODIFIERS' => '->relation('.$relation->model."::all(), '".$relation->fk_label."')",
+				'NOT_REQUIRED' => null
+			]);
+		}
+
+		foreach($fields as $field)
+		{
+			$field_modifiers = $table_modifiers = [];
+
+			switch($field->type)
+			{
+				case 'date':
+					$field_modifiers[] = '->date()';
+					$table_modifiers[] = "->datetime('d/m/Y')";
+					break;
+				
+				case 'decimal':
+					$field_modifiers[] = '->decimal()->min(0.1)';
+					break;
+				
+				case 'integer':
+					$field_modifiers[] = '->integer()->min(1)';
+					break;
+			}
+
+			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
+				'TITLE'  => Str::replace('_', ' ', ucfirst($field->name)),
+				'NAME'  => $field->name,
+				'MODIFIERS' => join('', $table_modifiers),
+			]);
+			
+			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
+				'TITLE'  => Str::replace('_', ' ', ucfirst($field->name)),
+				'NAME'  => $field->name,
+				'MODIFIERS' => join('', $field_modifiers),
+				'NOT_REQUIRED' => !$field->required ? '->notRequired()' : null,
+			]);
+ 		}
+
+		foreach($enums as $enum)
+		{
+			$uses[] = "use App\Enums\\".$enum->enum.';';
+
+			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
+				'TITLE'  => Str::replace('_', ' ', ucfirst($enum->field)),
+				'NAME'  => $enum->field,
+				'MODIFIERS' => '->enum('.$enum->enum.'::class)',
+			]);
+
+			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
+				'TITLE'  => Str::replace('_', ' ', ucfirst($enum->field)),
+				'NAME'  => $enum->field,
+				'MODIFIERS' => '->enum('.$enum->enum.'::cases())',
+				'NOT_REQUIRED' => null
+			]);
+		}
+
+		$actions = join(', ', array_map(function(string $action) {
+			return "'$action'";
+		}, $actions));
+
+		usort($uses, function($a, $b) {
+            return strlen($a) - strlen($b);
+        });
+
+		FileManipulation::putContentFile('admin_resource', 'app/AdminPanel/'.$name.'Resource.php', [
+			'CLASS' => $name.'Resource',
+			'USES' => join("\n", array_unique($uses)),
+			'ACTIONS' => $actions,
+			'TABLE_FIELDS' => join("\n\n", $table_fields),
+			'FORM_FIELDS' => join("\n\n", $form_fields)
+		]);
+
+		$this->info('Admin Resource created successfully');
+	}
+
+
+	private function _createModel(string $name_model, array $relations, array $fields, array $enums)
 	{
 		$uses = [
 			'use Illuminate\Database\Eloquent\Model;',
@@ -48,11 +155,19 @@ class CreateResourceCommand extends Command
 
 		$casts = $relationships = [];
 
+		foreach($fields as $field)
+		{
+			if($field->type == 'date')
+			{
+				$casts[] = str_repeat("\t", 2)."'".$field->name."' => 'datetime',";
+			}
+		}
+
 		foreach($enums as $enum)
 		{
 			$uses[] = "use App\Enums\\".$enum->enum.';';
 			
-			$casts[] = "'".$enum->field."' => ".$enum->enum."::class,";
+			$casts[] = str_repeat("\t", 2)."'".$enum->field."' => ".$enum->enum."::class,";
 		}
 
 		foreach($relations as $relation)
@@ -72,7 +187,7 @@ class CreateResourceCommand extends Command
 
 		FileManipulation::putContentFile('model', 'app/Models/'.$name_model.'.php', [
 			'CLASS' => $name_model,
-			'USES' => join("\n", $uses),
+			'USES' => join("\n", array_unique($uses)),
 			'RELATIONSHIPS' => join("\n", $relationships),
 			'CASTS' => ($casts) ? FileManipulation::getStubContents('casts', [
 				'CASTS' => join("\n", $casts),
@@ -147,7 +262,7 @@ class CreateResourceCommand extends Command
 
 		FileManipulation::putContentFile('factory', 'database/factories/'.$name_model.'Factory.php', [
 			'CLASS' => $name_model,
-			'USES' => join("\n", $uses),
+			'USES' => join("\n", array_unique($uses)),
 			'FIELDS' => join("\n", $fields_factory),
 		]);
 
@@ -167,7 +282,7 @@ class CreateResourceCommand extends Command
 
 		FileManipulation::putContentFile('seeder', 'database/seeders/'.$name_model.'Seeder.php', [
 			'CLASS' => $name_model,
-			'USES' => join("\n", $uses),
+			'USES' => join("\n", array_unique($uses)),
 		]);
 
 		$this->info('Seeder created successfully');
