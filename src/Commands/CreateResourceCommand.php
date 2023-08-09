@@ -30,15 +30,15 @@ class CreateResourceCommand extends Command
 
 		$config = json_decode(file_get_contents($file_config));
 
-		// $this->_createModel($config->name, $config->relations, $config->fields, $config->enums);
+		$this->_createModel($config->name, $config->relations, $config->fields, $config->enums);
 		
-		// $this->_createFactory($config->name, $config->fields, $config->relations, $config->enums);
+		$this->_createFactory($config->name, $config->fields, $config->relations, $config->enums);
 		
-		// $this->_createSeeder($config->name);
+		$this->_createSeeder($config->name);
 		
-		// $this->_createMigration($config->name, $config->fields, $config->relations, $config->enums);
+		$this->_createMigration($config->name, $config->fields, $config->relations, $config->enums);
 		
-		// $this->_createEnums($config->enums);
+		$this->_createEnums($config->enums);
 
 		if($with_admin_resources)
 		{

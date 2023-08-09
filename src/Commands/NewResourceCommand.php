@@ -29,6 +29,8 @@ class NewResourceCommand extends Command
 		
         $folder = 'laragenius';
 
+        $this->_makeDirectoryIfNotExists($folder);
+
 		$file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
 
         File::put($file_path, json_encode($this->_getFileStructure(
@@ -39,7 +41,17 @@ class NewResourceCommand extends Command
             $this->_getEnums($resource_name, $enums),
         ), JSON_PRETTY_PRINT));
         
-        $this->info("File ".$file_name.".json created.");
+        $this->info("File [".$folder."/".$file_name.".json] created.");
+    }
+
+    private function _makeDirectoryIfNotExists(string $folder_name)
+    {
+		if(!File::exists($folder_name))
+		{
+            File::makeDirectory($folder_name);
+            
+			$this->info("Folder '{$folder_name}' created successfully.");
+        }
     }
 
     private function _getFileStructure(string $resource_name, array $fields, array $actions, array $relations, array $enums)
