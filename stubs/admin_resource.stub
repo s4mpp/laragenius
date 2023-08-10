@@ -2,11 +2,13 @@
 
 namespace App\AdminPanel;
 
+
+
 {{ USES }}
 
 class {{ CLASS }} extends Resource
 {
-    public $title = '';
+    public $title = '{{ TITLE }}';
 
     public $actions = [{{ ACTIONS }}];
 
@@ -20,9 +22,10 @@ class {{ CLASS }} extends Resource
 
     public function getForm(int $id = null)
     {
-        return $this->form($id)->fields([
-            
+        return $this->form($id)->elements([
+            Row::create([
 {{ FORM_FIELDS }}
+            ])
         ]);
     }
 }

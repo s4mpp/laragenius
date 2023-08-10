@@ -42,13 +42,14 @@ class CreateResourceCommand extends Command
 
 		if($with_admin_resources)
 		{
-			$this->_createAdminResource($config->name, $config->fields, $config->enums, $config->relations, $config->actions ?? []);
+			$this->_createAdminResource($config->name, $config->title ?? $config->name, $config->fields, $config->enums, $config->relations, $config->actions ?? []);
 		}
     }
 
-	private function _createAdminResource(string $name, array $fields, array $enums, array $relations, array $actions)
+	private function _createAdminResource(string $name, string $title, array $fields, array $enums, array $relations, array $actions)
 	{
 		$uses = [
+			'use S4mpp\AdminPanel\Form\Row;',
 			'use S4mpp\AdminPanel\Form\Field;',
 			'use S4mpp\AdminPanel\Table\Column;',
 			'use S4mpp\AdminPanel\Resources\Resource;',
@@ -61,15 +62,15 @@ class CreateResourceCommand extends Command
 			$uses[] = "use App\Models\\".$relation->model.';';
 
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
-				'TITLE'  => Str::replace('_id', '', ucfirst($relation->field)),
+				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->field)),
 				'NAME'  => Str::replace('_id', '', $relation->field),
-				'MODIFIERS' => "->relation('".$relation->fk_label."')",
+				'MODIFIERS' => "->relation('".($relation->fk_label ?? 'id')."')",
 			]);
 
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
-				'TITLE'  => Str::replace('_id', '', ucfirst($relation->field)),
+				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->field)),
 				'NAME'  => $relation->field,
-				'MODIFIERS' => '->relation('.$relation->model."::all(), '".$relation->fk_label."')",
+				'MODIFIERS' => '->relation('.$relation->model."::all(), '".($relation->fk_label ?? 'id')."')",
 				'NOT_REQUIRED' => null
 			]);
 		}
@@ -90,7 +91,13 @@ class CreateResourceCommand extends Command
 					break;
 				
 				case 'integer':
+				case 'tinyInteger':
+				case 'bigInteger':
 					$field_modifiers[] = '->integer()->min(1)';
+					break;
+				
+				case 'text':
+					$field_modifiers[] = '->textarea()->rows(4)';
 					break;
 			}
 
@@ -136,6 +143,7 @@ class CreateResourceCommand extends Command
 
 		FileManipulation::putContentFile('admin_resource', 'app/AdminPanel/'.$name.'Resource.php', [
 			'CLASS' => $name.'Resource',
+			'TITLE' => $title ?? $name,
 			'USES' => join("\n", array_unique($uses)),
 			'ACTIONS' => $actions,
 			'TABLE_FIELDS' => join("\n\n", $table_fields),
@@ -294,7 +302,18 @@ class CreateResourceCommand extends Command
 
 		$name = 'create_'.$table.'_table';
 
-		$class = Str::ucfirst(Str::camel($name));
+		$name_file = date('Y_m_d_His').'_'.$name.'.php';
+
+		$dir = app_path('../database/migrations');
+
+        $migration_exists =  glob($dir.'/*'.$name.'.php');
+
+		foreach($migration_exists as $file)
+		{
+			$name_file_existing = explode('/', $file);
+
+            $name_file = end($name_file_existing);
+		}
 
 		$fields_migration = [];
         
@@ -328,9 +347,8 @@ class CreateResourceCommand extends Command
 			]);
         }
 
-		FileManipulation::putContentFile('migration', 'database/migrations/'.date('Y_m_d_His').'_'.$name.'.php', [
+		FileManipulation::putContentFile('migration', 'database/migrations/'.$name_file, [
 			'TABLE' => $table,
-			'CLASS' => $class,
             'FIELDS' => join("\n", $fields_migration),
 		]);
 

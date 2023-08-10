@@ -57,7 +57,7 @@ class NewResourceCommand extends Command
     private function _getFileStructure(string $resource_name, array $fields, array $actions, array $relations, array $enums)
     {
         return [
-            'name' => Utils::nameModel($resource_name),
+            'name' => $resource_name,
             'title' => Str::ucfirst(Str::replace('_', ' ', Utils::nameTable($resource_name))),
             'fields' => $fields,
             'actions' => $actions,
@@ -129,7 +129,7 @@ class NewResourceCommand extends Command
 
             $relations_mounted[] = [
                 'field' => Str::lower($exp[0]).'_id',
-                'model' => Utils::nameModel($exp[0]),
+                'model' => $exp[0],
                 'fk_label' => $exp[1] ?? 'id',
                 'type' => 'belongsTo',
             ];
@@ -147,8 +147,8 @@ class NewResourceCommand extends Command
         foreach($enums as $field)
         {
             $enums_mounted[] = [
-                'field' => $field,
-                'enum' => Utils::nameModel($resource_name).Str::title($field)
+                'field' => Str::snake($field),
+                'enum' => $resource_name.$field
             ];
         }
 
