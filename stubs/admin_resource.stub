@@ -12,29 +12,28 @@ class {{ CLASS }} extends Resource
 
     public $actions = [{{ ACTIONS }}];
 
-    public function getIndex()
+    public function getTable()
     {
-        return $this->table()->columns([
-
+        return [
 {{ TABLE_FIELDS }}
-        ]);
+        ];
     }
 
     public function getForm()
     {
-        return $this->view()->elements([
+        return [
             Row::create([
 {{ FORM_FIELDS }}
             ])
-        ]);
+        ];
     }
 
     public function getRead()
     {
-        return $this->view()->elements([
+        return [
             Row::create([
 {{ READ_FIELDS }}
             ])
-        ]);
+        ];
     }
 }
