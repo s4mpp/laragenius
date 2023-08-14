@@ -10,8 +10,6 @@ enum {{ CLASS }}: int
         return match($this)
         {
             self::Option => 'label',
-
-            default => 'Indefinido'
         };
     }
 
@@ -20,8 +18,6 @@ enum {{ CLASS }}: int
         return match($this)
         {
             self::Option => 'success',
-
-            default => 'light'
         };
     }
 }

@@ -20,11 +20,20 @@ class {{ CLASS }} extends Resource
         ]);
     }
 
-    public function getForm(int $id = null)
+    public function getForm()
     {
-        return $this->form($id)->elements([
+        return $this->view()->elements([
             Row::create([
 {{ FORM_FIELDS }}
+            ])
+        ]);
+    }
+
+    public function getRead()
+    {
+        return $this->view()->elements([
+            Row::create([
+{{ READ_FIELDS }}
             ])
         ]);
     }

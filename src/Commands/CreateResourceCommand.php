@@ -49,13 +49,14 @@ class CreateResourceCommand extends Command
 	private function _createAdminResource(string $name, string $title, array $fields, array $enums, array $relations, array $actions)
 	{
 		$uses = [
-			'use S4mpp\AdminPanel\Form\Row;',
-			'use S4mpp\AdminPanel\Form\Field;',
+			'use S4mpp\AdminPanel\Elements\Row;',
+			'use S4mpp\AdminPanel\Elements\ItemView;',
+			'use S4mpp\AdminPanel\Elements\Field;',
 			'use S4mpp\AdminPanel\Table\Column;',
 			'use S4mpp\AdminPanel\Resources\Resource;',
 		];
 
-		$table_fields = $form_fields = [];
+		$table_fields = $form_fields = $read_fields = [];
 
 		foreach($relations as $relation)
 		{
@@ -73,11 +74,17 @@ class CreateResourceCommand extends Command
 				'MODIFIERS' => '->relation('.$relation->model."::all(), '".($relation->fk_label ?? 'id')."')",
 				'NOT_REQUIRED' => null
 			]);
+
+			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
+				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->field)),
+				'NAME'  => $relation->field,
+				'MODIFIERS' => null
+			]);
 		}
 
 		foreach($fields as $field)
 		{
-			$field_modifiers = $table_modifiers = [];
+			$field_modifiers = $table_modifiers = $read_modifiers = [];
 
 			switch($field->type)
 			{
@@ -113,6 +120,12 @@ class CreateResourceCommand extends Command
 				'MODIFIERS' => join('', $field_modifiers),
 				'NOT_REQUIRED' => !$field->required ? '->notRequired()' : null,
 			]);
+
+			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
+				'TITLE'  => Str::replace('_', ' ', ucfirst($field->name)),
+				'NAME'  => $field->name,
+				'MODIFIERS' => join('', $read_modifiers),
+			]);
  		}
 
 		foreach($enums as $enum)
@@ -131,6 +144,12 @@ class CreateResourceCommand extends Command
 				'MODIFIERS' => '->enum('.$enum->enum.'::cases())',
 				'NOT_REQUIRED' => null
 			]);
+
+			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
+				'TITLE'  => Str::replace('_', ' ', ucfirst($enum->field)),
+				'NAME'  => $enum->field,
+				'MODIFIERS' => '->enum()'
+			]);
 		}
 
 		$actions = join(', ', array_map(function(string $action) {
@@ -147,7 +166,8 @@ class CreateResourceCommand extends Command
 			'USES' => join("\n", array_unique($uses)),
 			'ACTIONS' => $actions,
 			'TABLE_FIELDS' => join("\n\n", $table_fields),
-			'FORM_FIELDS' => join("\n\n", $form_fields)
+			'FORM_FIELDS' => join("\n\n", $form_fields),
+			'READ_FIELDS' => join("\n\n", $read_fields),
 		]);
 
 		$this->info('Admin Resource created successfully');
