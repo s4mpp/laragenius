@@ -6,40 +6,50 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use S4mpp\Laragenius\Utils;
 
+use function Laravel\Prompts\multiselect;
+use function Laravel\Prompts\text;
+
 class NewResourceCommand extends Command
 {
-	protected $signature = 'laragenius:new-resource
-                            {resource_name : Name of resource}
-                            {--fields= : Fields of registers}
-                            {--actions= : Actions crud}
-                            {--relations= : Relations of foreignk keys}
-                            {--enums= : Enums to related fields}';
+    protected $signature = 'laragenius:new-resource';
 
 	protected $description = 'Create a new resource configuration file';
 
 	public function handle(): void
     {
-        $resource_name = $this->argument('resource_name');
-        $fields = $this->option('fields') ?? '';
-        $actions = $this->option('actions') ?? '';
-        $relations = $this->option('relations') ?? '';
-        $enums = $this->option('enums') ?? '';
+        $resource_name = text(label: 'Name of resource', placeholder: 'Ex.: User', required: true);
+        
+        $fields = $this->_collectFields();
+        
+        $actions = multiselect(label: 'Actions', options: [
+            'create' => 'Create',
+            'read' => 'Read',
+            'update' => 'Update',
+            'delete' => 'Delete'
+        ],
+        default: ['create', 'update']);
 
-        $file_name = Str::snake(Str::lower($resource_name));
-		
-        $folder = 'laragenius';
+        $relations = text(label: 'Relations', placeholder: 'Separated by ","');
+        
+        $enums = text(label: 'Enums', placeholder: 'Separated by ","');
 
-        $this->_makeDirectoryIfNotExists($folder);
-
-		$file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
-
-        File::put($file_path, json_encode($this->_getFileStructure(
+        $file_structure = $this->_getFileStructure(
             $resource_name,
             $this->_getFields($fields),
-            $this->_getActions($actions),
+            $actions,
             $this->_getRelations($relations),
             $this->_getEnums($resource_name, $enums),
-        ), JSON_PRETTY_PRINT));
+        );
+
+        $file_name = Str::snake(Str::lower($resource_name));
+        
+        $folder = 'laragenius';
+        
+        $this->_makeDirectoryIfNotExists($folder);
+        
+        $file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
+
+        File::put($file_path, json_encode($file_structure, JSON_PRETTY_PRINT));
         
         $this->info("File [".$folder."/".$file_name.".json] created.");
     }
@@ -66,11 +76,35 @@ class NewResourceCommand extends Command
         ];
     }
 
+    private function _collectFields()
+    {
+        return text(label: 'Fields', placeholder: 'Separated by ","', required: true, validate: function($value)
+        {
+            $fields = explode(',', $value);
+
+            foreach($fields as $field)
+            {
+                $exp = explode('.', $field);
+    
+                $name = $exp[0];
+                $type = $exp[1] ?? 'string';
+    
+                if(!in_array($type, ['string', 'text', 'date', 'decimal', 'integer', 'tinyInteger', 'bigInteger', 'boolean']))
+                {
+                    return 'Invalid field type for field '. $name;
+                }
+    
+                if(in_array($name, ['id', 'created_at', 'updated_at']))
+                {
+                    return 'The field names "id", "created_at" and "updated_at" are prohibited';
+                }
+            }
+        });
+    }
+
     private  function _getFields(string $fields = null)
     {
         $fields = array_filter(explode(',', $fields));
-
-        $fields_mounted = [];
         
         foreach($fields as $field)
         {
@@ -79,49 +113,19 @@ class NewResourceCommand extends Command
             $name = $exp[0];
             $type = $exp[1] ?? 'string';
 
-            if(!in_array($type, ['string', 'text', 'date', 'decimal', 'integer', 'tinyInteger', 'bigInteger']))
-            {
-                $this->error('Invalid field type for field '. $name);
-                
-                continue;
-            }
-
             $fields_mounted[] = [
-                'type' => Str::lower($type),
                 'name' => Str::lower($name),
+                'type' => Str::lower($type),
                 'required' => true,
             ];
         }
 
-        return $fields_mounted;
-    }
-
-    private  function _getActions(string $actions = null)
-    {
-        $actions = array_filter(explode(',', $actions));
-
-        $actions_mounted = [];
-        
-        foreach($actions as $action)
-        {
-            if(!in_array($action, ['create', 'read', 'update', 'delete']))
-            {
-                $this->error('Invalid action: '. $action);
-                
-                continue;
-            }
-
-            $actions_mounted[] = $action;
-        }
-
-        return $actions_mounted;
+        return $fields_mounted ?? [];
     }
 
     private  function _getRelations(string $relations = null)
     {
         $relations = array_filter(explode(',', $relations));
-
-        $relations_mounted = [];
         
         foreach($relations as $relation)
         {
@@ -135,14 +139,12 @@ class NewResourceCommand extends Command
             ];
         }
 
-        return $relations_mounted;
+        return $relations_mounted ?? [];
     }
 
     private  function _getEnums(string $resource_name, string $enums = null)
     {
         $enums = array_filter(explode(',', $enums));
-
-        $enums_mounted = [];
         
         foreach($enums as $field)
         {
@@ -152,6 +154,6 @@ class NewResourceCommand extends Command
             ];
         }
 
-        return $enums_mounted;
+        return $enums_mounted ?? [];
     }
 }
