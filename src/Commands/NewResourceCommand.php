@@ -2,12 +2,13 @@
 namespace S4mpp\Laragenius\Commands;
 
 use Illuminate\Support\Str;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
 use S4mpp\Laragenius\Utils;
-
-use function Laravel\Prompts\multiselect;
+use Illuminate\Console\Command;
 use function Laravel\Prompts\text;
+
+use Illuminate\Support\Facades\File;
+use S4mpp\Laragenius\FileManipulation;
+use function Laravel\Prompts\multiselect;
 
 class NewResourceCommand extends Command
 {
@@ -15,9 +16,20 @@ class NewResourceCommand extends Command
 
 	protected $description = 'Create a new resource configuration file';
 
+    private $resource_loaded;
+
 	public function handle(): void
     {
         $resource_name = text(label: 'Name of resource', placeholder: 'Ex.: User', required: true);
+
+        $resource = FileManipulation::findResourceFile($resource_name);
+
+        if($resource)
+        {
+            $this->resource_loaded = $resource;
+
+            $this->info('Resource '.$resource_name.' loaded');
+        }
         
         $fields = $this->_collectFields();
         
@@ -27,12 +39,12 @@ class NewResourceCommand extends Command
             'update' => 'Update',
             'delete' => 'Delete'
         ],
-        default: ['create', 'update']);
+        default: ($this->resource_loaded) ? $this->resource_loaded['actions'] : ['create', 'update']);
 
-        $relations = text(label: 'Relations', placeholder: 'Separated by ","');
+        $relations = $this->_collectRelations();
         
-        $enums = text(label: 'Enums', placeholder: 'Separated by ","');
-
+        $enums = $this->_collectEnums();
+        
         $file_structure = $this->_getFileStructure(
             $resource_name,
             $this->_getFields($fields),
@@ -78,11 +90,21 @@ class NewResourceCommand extends Command
 
     private function _collectFields()
     {
-        return text(label: 'Fields', placeholder: 'Separated by ","', required: true, validate: function($value)
+        foreach($this->resource_loaded['fields'] as $field)
         {
-            $fields = explode(',', $value);
+            $type = ($field->type == 'string') ? null : '.'.$field->type;
 
-            foreach($fields as $field)
+            $default_fields[] = $field->name.$type;
+        }
+
+        return text(
+            label: 'Fields',
+            placeholder: 'Separated by ","',
+            required: true,
+            default: isset($default_fields) ? join(',', $default_fields) : null,
+            validate: function($value)
+        {
+            foreach(explode(',', $value) as $field)
             {
                 $exp = explode('.', $field);
     
@@ -100,6 +122,34 @@ class NewResourceCommand extends Command
                 }
             }
         });
+    }
+
+    private function _collectRelations()
+    {
+        foreach($this->resource_loaded['relations'] as $relation)
+        {
+            $default_relations[] = $relation->model.'.'.$relation->fk_label;
+        }
+
+        return text(
+            label: 'Relations',
+            placeholder: 'Separated by ","',
+            default: isset($default_relations) ? join(',', $default_relations) : null
+        );
+    }
+
+    private function _collectEnums()
+    {
+        foreach($this->resource_loaded['enums'] as $enum)
+        {
+            $default_enums[] = $enum->title ?? null;
+        }
+
+        return text(
+            label: 'Enums',
+            placeholder: 'Separated by ","',
+            default: isset($default_enums) ? join(',', $default_enums) : null
+        );
     }
 
     private  function _getFields(string $fields = null)
@@ -150,6 +200,7 @@ class NewResourceCommand extends Command
         {
             $enums_mounted[] = [
                 'field' => Str::snake($field),
+                'title' => $field,
                 'enum' => $resource_name.$field
             ];
         }

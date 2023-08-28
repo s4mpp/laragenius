@@ -1,6 +1,7 @@
 <?php
 namespace S4mpp\Laragenius;
 
+use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
 
 abstract class FileManipulation
@@ -30,4 +31,18 @@ abstract class FileManipulation
 
         return $origin_stub_content;
     }
+
+    public static function findResourceFile(string $resource_name): ?Collection
+	{
+		$file_config = 'laragenius'.DIRECTORY_SEPARATOR.strtolower($resource_name).'.json';
+
+		if(!file_exists($file_config))
+		{
+			return null;
+		}
+
+		$config = json_decode(file_get_contents($file_config));
+
+		return collect($config);
+	}
 }

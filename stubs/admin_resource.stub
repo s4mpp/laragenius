@@ -22,7 +22,7 @@ class {{ CLASS }} extends Resource
     public function getForm()
     {
         return [
-            Row::create([
+            Card::create('', [
 {{ FORM_FIELDS }}
             ])
         ];
@@ -31,9 +31,7 @@ class {{ CLASS }} extends Resource
     public function getRead()
     {
         return [
-            Row::create([
 {{ READ_FIELDS }}
-            ])
         ];
     }
 }

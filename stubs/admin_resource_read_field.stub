@@ -1,1 +1,1 @@
-				ItemView::create('{{ TITLE }}', '{{ NAME }}')->col('sm', 4){{ MODIFIERS }},
+			ItemView::create('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }},
