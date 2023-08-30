@@ -17,7 +17,7 @@ enum {{ CLASS }}: int
     {
         return match($this)
         {
-            self::Option => 'success',
+            self::Option => 'green',
         };
     }
 }

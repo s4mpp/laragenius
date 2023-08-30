@@ -8,7 +8,7 @@ use S4mpp\Laragenius\FileManipulation;
 
 class CreateResourceCommand extends Command
 {
-	protected $signature = 'laragenius:create-resource
+	protected $signature = 'lg:create
                             {resource_name : Name of resource}
 							{--with-admin : Create admin panel resources}';
 

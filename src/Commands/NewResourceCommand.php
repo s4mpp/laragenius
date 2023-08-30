@@ -12,7 +12,7 @@ use function Laravel\Prompts\multiselect;
 
 class NewResourceCommand extends Command
 {
-    protected $signature = 'laragenius:new-resource';
+    protected $signature = 'lg:new';
 
 	protected $description = 'Create a new resource configuration file';
 
@@ -90,7 +90,7 @@ class NewResourceCommand extends Command
 
     private function _collectFields()
     {
-        foreach($this->resource_loaded['fields'] as $field)
+        foreach($this->resource_loaded['fields'] ?? [] as $field)
         {
             $type = ($field->type == 'string') ? null : '.'.$field->type;
 
@@ -101,7 +101,7 @@ class NewResourceCommand extends Command
             label: 'Fields',
             placeholder: 'Separated by ","',
             required: true,
-            default: isset($default_fields) ? join(',', $default_fields) : null,
+            default: isset($default_fields) ? join(',', $default_fields) : '',
             validate: function($value)
         {
             foreach(explode(',', $value) as $field)
@@ -126,7 +126,7 @@ class NewResourceCommand extends Command
 
     private function _collectRelations()
     {
-        foreach($this->resource_loaded['relations'] as $relation)
+        foreach($this->resource_loaded['relations'] ?? [] as $relation)
         {
             $default_relations[] = $relation->model.'.'.$relation->fk_label;
         }
@@ -134,13 +134,13 @@ class NewResourceCommand extends Command
         return text(
             label: 'Relations',
             placeholder: 'Separated by ","',
-            default: isset($default_relations) ? join(',', $default_relations) : null
+            default: isset($default_relations) ? join(',', $default_relations) : ''
         );
     }
 
     private function _collectEnums()
     {
-        foreach($this->resource_loaded['enums'] as $enum)
+        foreach($this->resource_loaded['enums'] ?? [] as $enum)
         {
             $default_enums[] = $enum->title ?? null;
         }
@@ -148,7 +148,7 @@ class NewResourceCommand extends Command
         return text(
             label: 'Enums',
             placeholder: 'Separated by ","',
-            default: isset($default_enums) ? join(',', $default_enums) : null
+            default: isset($default_enums) ? join(',', $default_enums) : ''
         );
     }
 
