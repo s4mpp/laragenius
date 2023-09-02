@@ -15,9 +15,7 @@ abstract class FileManipulation
 		$content = preg_replace("/\n    \n\n/", "\n", $content);
         $content = preg_replace("/\n\n\n/", "\n", $content);
 
-
         $filesystem->put($destination, $content);
-
     }
 
     public static function getStubContents(string $stub_name, array $stub_variables = [])
@@ -34,7 +32,7 @@ abstract class FileManipulation
 
     public static function findResourceFile(string $resource_name): ?Collection
 	{
-		$file_config = 'laragenius'.DIRECTORY_SEPARATOR.strtolower($resource_name).'.json';
+		$file_config = 'laragenius'.DIRECTORY_SEPARATOR.strtolower($resource_name);
 
 		if(!file_exists($file_config))
 		{
@@ -44,5 +42,19 @@ abstract class FileManipulation
 		$config = json_decode(file_get_contents($file_config));
 
 		return collect($config);
+	}
+
+    public static function getResourcesFiles(): ?array
+	{
+        $files = [];
+
+		foreach(glob('laragenius'.DIRECTORY_SEPARATOR.'*.json') as $file)
+		{
+            $name_file = explode(DIRECTORY_SEPARATOR, $file);
+
+            $files[end($name_file)] = json_decode(file_get_contents($file));
+		}
+
+        return $files;
 	}
 }

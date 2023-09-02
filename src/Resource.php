@@ -359,7 +359,7 @@ class Resource
 
 		FileManipulation::putContentFile('admin_resource', 'app/AdminPanel/'.$this->name.'Resource.php', [
 			'CLASS' => $this->name.'Resource',
-			'TITLE' => $title ?? $this->name,
+			'TITLE' => Str::plural($this->title ?? $this->name),
 			'USES' => join("\n", array_unique($uses)),
 			'ACTIONS' => $actions,
 			'TABLE_FIELDS' => join("\n\n", $table_fields),

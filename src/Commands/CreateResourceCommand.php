@@ -6,11 +6,12 @@ use S4mpp\Laragenius\Resource;
 use Illuminate\Console\Command;
 use S4mpp\Laragenius\FileManipulation;
 
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\select;
+
 class CreateResourceCommand extends Command
 {
-	protected $signature = 'lg:create
-                            {resource_name : Name of resource}
-							{--with-admin : Create admin panel resources}';
+	protected $signature = 'lg:create';
 
 	protected $description = 'Generate files of new resource';
 
@@ -18,16 +19,11 @@ class CreateResourceCommand extends Command
 
 	public function handle()
     {
-        $resource_name = Str::lower($this->argument('resource_name'));
+        $resource_file = $this->_selectResource();
 
-		$with_admin = $this->option('with-admin');
+		$this->resource = FileManipulation::findResourceFile($resource_file);
 
-		$this->resource = FileManipulation::findResourceFile($resource_name);
-
-        if(!$this->resource)
-        {
-            return $this->error('Config file of resource '.$resource_name.' not found');
-        }
+		$with_admin = confirm('Generate Admin Resource?', default: true);
 
 		$resource = new Resource(
 			$this->resource['name'],
@@ -53,4 +49,16 @@ class CreateResourceCommand extends Command
 		 	$resource->createAdminResource();
 		}
     }
+
+	private function _selectResource()
+	{
+		$resources = FileManipulation::getResourcesFiles();
+
+		foreach($resources as $file => $resource)
+		{
+			$options[$file] = $resource->title;
+		}
+
+		return select(label: 'Select a resource to create', options: $options ?? []);
+	}
 }
