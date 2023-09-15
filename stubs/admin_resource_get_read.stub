@@ -1,0 +1,7 @@
+
+	public function getRead()
+    {
+        return [
+{{ READ_FIELDS }}
+        ];
+    }

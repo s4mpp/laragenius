@@ -4,11 +4,14 @@ namespace S4mpp\Laragenius\Commands;
 use Illuminate\Support\Str;
 use S4mpp\Laragenius\Utils;
 use Illuminate\Console\Command;
+
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\text;
 
 use Illuminate\Support\Facades\File;
 use S4mpp\Laragenius\FileManipulation;
 use function Laravel\Prompts\multiselect;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class NewResourceCommand extends Command
 {
@@ -18,11 +21,17 @@ class NewResourceCommand extends Command
 
     private $resource_loaded;
 
+    private $translator;
+
 	public function handle(): void
     {
+        $this->translator = new GoogleTranslate('pt-br');
+
+        $this->translator->setClient('webapp');
+
         $resource_name = text(label: 'Name of resource', placeholder: 'Ex.: User', required: true);
 
-        $resource = FileManipulation::findResourceFile($resource_name);
+        $resource = FileManipulation::findResourceFile($resource_name.'.json');
 
         if($resource)
         {
@@ -44,13 +53,19 @@ class NewResourceCommand extends Command
         $relations = $this->_collectRelations();
         
         $enums = $this->_collectEnums();
+
+        $this->bar = $this->output->createProgressBar(1 + count($fields) + count($enums) + count($relations));
+
+        $this->bar->setFormat('Gerando: [%bar%] %percent:3s%%');
+ 
+        $this->bar->start();
         
         $file_structure = $this->_getFileStructure(
             $resource_name,
-            $this->_getFields($fields),
+            $this->_createFields($fields),
             $actions,
-            $this->_getRelations($relations),
-            $this->_getEnums($resource_name, $enums),
+            $this->_createRelations($relations),
+            $this->_createEnums($resource_name, $enums),
         );
 
         $file_name = Str::snake(Str::lower($resource_name));
@@ -62,8 +77,10 @@ class NewResourceCommand extends Command
         $file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
 
         File::put($file_path, json_encode($file_structure, JSON_PRETTY_PRINT));
+
+        $this->bar->finish();
         
-        $this->info("File [".$folder."/".$file_name.".json] created.");
+        info("File [".$folder."/".$file_name.".json] (".$file_structure['title'].") created.");
     }
 
     private function _makeDirectoryIfNotExists(string $folder_name)
@@ -80,7 +97,7 @@ class NewResourceCommand extends Command
     {
         return [
             'name' => $resource_name,
-            'title' => Str::ucfirst(Str::replace('_', ' ', Utils::nameTable($resource_name))),
+            'title' => Utils::translate($resource_name, $this->translator),
             'fields' => $fields,
             'actions' => $actions,
             'relations' => $relations,
@@ -97,7 +114,7 @@ class NewResourceCommand extends Command
             $default_fields[] = $field->name.$type;
         }
 
-        return text(
+        $fields = text(
             label: 'Fields',
             placeholder: 'Separated by ","',
             required: true,
@@ -111,7 +128,7 @@ class NewResourceCommand extends Command
                 $name = $exp[0];
                 $type = $exp[1] ?? 'string';
     
-                if(!in_array($type, ['string', 'text', 'date', 'decimal', 'integer', 'tinyInteger', 'bigInteger', 'boolean']))
+                if(!in_array($type, ['string', 'text', 'date', 'datetime', 'decimal', 'integer', 'tinyInteger', 'bigInteger', 'boolean']))
                 {
                     return 'Invalid field type for field '. $name;
                 }
@@ -122,6 +139,8 @@ class NewResourceCommand extends Command
                 }
             }
         });
+
+        return array_filter(explode(',', $fields));
     }
 
     private function _collectRelations()
@@ -131,78 +150,121 @@ class NewResourceCommand extends Command
             $default_relations[] = $relation->model.'.'.$relation->fk_label;
         }
 
-        return text(
+        $relations = text(
             label: 'Relations',
             placeholder: 'Separated by ","',
             default: isset($default_relations) ? join(',', $default_relations) : ''
         );
+
+        return array_filter(explode(',', $relations));
     }
 
     private function _collectEnums()
     {
         foreach($this->resource_loaded['enums'] ?? [] as $enum)
         {
-            $default_enums[] = $enum->title ?? null;
+            $default_enums[] = $enum->id ?? null;
         }
 
-        return text(
+        $enums = text(
             label: 'Enums',
             placeholder: 'Separated by ","',
             default: isset($default_enums) ? join(',', $default_enums) : ''
         );
+
+        return array_filter(explode(',', $enums));
     }
 
-    private  function _getFields(string $fields = null)
-    {
-        $fields = array_filter(explode(',', $fields));
-        
+    private  function _createFields(array $fields = [])
+    {        
         foreach($fields as $field)
         {
+            $field_loaded = null;
+
             $exp = explode('.', $field);
 
             $name = $exp[0];
             $type = $exp[1] ?? 'string';
 
+            foreach($this->resource_loaded['fields'] ?? [] as $field)
+            {
+                if($field->name == $name)
+                {
+                    $field_loaded = $field;
+                }
+            }
+
             $fields_mounted[] = [
                 'name' => Str::lower($name),
+                'title' => $field_loaded ? $field_loaded->title : Utils::translate($name, $this->translator),
                 'type' => Str::lower($type),
-                'required' => true,
+                'required' => $field_loaded->required ?? true,
+                'unique' => $field_loaded->unique ?? false,
             ];
+            
+            $this->bar->advance();
         }
+
 
         return $fields_mounted ?? [];
     }
 
-    private  function _getRelations(string $relations = null)
+    private  function _createRelations(array $relations = [])
     {
-        $relations = array_filter(explode(',', $relations));
-        
         foreach($relations as $relation)
         {
+            $relation_loaded = null;
+            
             $exp = explode('.', $relation);
 
+            $field_name = Str::lower($exp[0]).'_id';
+
+            foreach($this->resource_loaded['relations'] ?? [] as $relation)
+            {
+                if($relation->field == $field_name)
+                {
+                    $relation_loaded = $relation;
+                }
+            }
+
             $relations_mounted[] = [
-                'field' => Str::lower($exp[0]).'_id',
-                'model' => $exp[0],
+                'field' => $field_name,
+                'title' => ($relation_loaded) ? $relation_loaded->title : Utils::translate($exp[0], $this->translator),
+                'model' => Str::ucfirst($exp[0]),
                 'fk_label' => $exp[1] ?? 'id',
                 'type' => 'belongsTo',
             ];
+
+            $this->bar->advance();
         }
 
         return $relations_mounted ?? [];
     }
 
-    private  function _getEnums(string $resource_name, string $enums = null)
+    private  function _createEnums(string $resource_name, array $enums = [])
     {
-        $enums = array_filter(explode(',', $enums));
-        
         foreach($enums as $field)
         {
+            $enum_loaded = null;
+
+            $field_name = Str::snake($field);
+
+            foreach($this->resource_loaded['enums'] ?? [] as $enum)
+            {
+                if($enum->field == $field_name)
+                {
+                    $enum_loaded = $enum;
+                }
+            }
+
             $enums_mounted[] = [
-                'field' => Str::snake($field),
-                'title' => $field,
+                'id' => Str::ucfirst($field_name),
+                'field' => $field_name,
+                'title' => ($enum_loaded) ? $enum_loaded->title : Utils::translate($field_name, $this->translator),
                 'enum' => $resource_name.$field
             ];
+
+            $this->bar->advance();
         }
 
         return $enums_mounted ?? [];

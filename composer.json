@@ -16,6 +16,9 @@
         "php": "^8.1",
         "laravel/framework": "^10.10"
     },
+    "require-dev": {
+        "sebastian/diff": "^5.0"
+    },
     "extra": {
         "laravel": {
             "providers": [

@@ -30,7 +30,7 @@ class Resource
 
 		foreach($this->fields as $field)
 		{
-			if($field->type == 'date')
+			if($field->type == 'date' || $field->type == 'datetime')
 			{
 				$casts[] = str_repeat("\t", 2)."'".$field->name."' => 'datetime',";
 			}
@@ -80,33 +80,44 @@ class Resource
         
 		foreach($this->fields as $field)
         {
+			$faker_field = 'fake()';
+
+			if(isset($field->unique) && $field->unique)
+			{
+				$faker_field .= '->unique()';
+			}
+
 			switch($field->type)
 			{
 				case 'text':
-					$faker_field = 'fake()->sentence(10)';
+					$faker_field .= '->sentence(10)';
 					break;
 				
 				case 'date':
-					$faker_field = "fake()->date('Y-m-d')";
+					$faker_field .= "->date('Y-m-d')";
+					break;
+				
+				case 'datetime':
+					$faker_field .= "->date('Y-m-d H:i:s')";
 					break;
 								
 				case 'decimal':
-					$faker_field = 'fake()->randomFloat(2, 0, 10000)';
+					$faker_field .= '->randomFloat(2, 0, 10000)';
 					break;
 				
 				case 'boolean':
-					$faker_field = 'fake()->boolean()';
+					$faker_field .= '->boolean()';
 					break;
 								
 				case 'integer':
 				case 'tinyInteger':
 				case 'bigInteger':
-					$faker_field = 'fake()->randomDigit()';
+					$faker_field .= '->randomDigit()';
 					break;
 
 				case 'string':
 				default: 
-					$faker_field = 'fake()->word()';
+					$faker_field .= '->word()';
 			}
 
             $fields_factory[$field->name] = $faker_field;
@@ -192,6 +203,7 @@ class Resource
 				'TYPE'  => $field->type,
 				'COLUMN'  => $field->name,
 				'NULLABLE' => ($field->required) ? null : '->nullable()',
+				'UNIQUE' => (isset($field->unique) && $field->unique) ? '->unique()' : null,
 				'REFERENCES' => null,
 			]);
         }
@@ -246,9 +258,6 @@ class Resource
 	public function createAdminResource()
 	{
 		$uses = [
-			'use S4mpp\AdminPanel\Elements\Card;',
-			'use S4mpp\AdminPanel\Elements\ItemView;',
-			'use S4mpp\AdminPanel\Elements\Field;',
 			'use S4mpp\AdminPanel\Elements\Column;',
 			'use S4mpp\AdminPanel\Resources\Resource;',
 		];
@@ -260,20 +269,20 @@ class Resource
 			$uses[] = "use App\Models\\".$relation->model.';';
 
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
-				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->field)),
+				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->title ?? $relation->field)),
 				'NAME'  => Str::replace('_id', '', $relation->field),
 				'MODIFIERS' => "->relation('".($relation->fk_label ?? 'id')."')",
 			]);
 
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
-				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->field)),
+				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->title ?? $relation->field)),
 				'NAME'  => $relation->field,
 				'MODIFIERS' => '->relation('.$relation->model."::all(), '".($relation->fk_label ?? 'id')."')",
 				'NOT_REQUIRED' => null
 			]);
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
-				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->field)),
+				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->title ?? $relation->field)),
 				'NAME'  => $relation->field,
 				'MODIFIERS' => null
 			]);
@@ -288,6 +297,10 @@ class Resource
 				case 'date':
 					$field_modifiers[] = '->date()';
 					$table_modifiers[] = "->datetime('d/m/Y')";
+					
+				case 'datetime':
+					$field_modifiers[] = '->datetime()';
+					$table_modifiers[] = "->datetime('d/m/Y H:i')";
 					break;
 				
 				case 'decimal':
@@ -303,6 +316,11 @@ class Resource
 				case 'text':
 					$field_modifiers[] = '->textarea()->rows(4)';
 					break;
+			}
+
+			if(isset($field->unique) && $field->unique)
+			{
+				$field_modifiers[] = '->unique()';
 			}
 
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
@@ -353,6 +371,26 @@ class Resource
 			return "'$action'";
 		}, $this->actions));
 
+
+		if(in_array('create', $this->actions) || in_array('update', $this->actions))
+		{
+			$uses[] = 'use S4mpp\AdminPanel\Elements\Card;';
+			$uses[] = 'use S4mpp\AdminPanel\Elements\Field;';
+			
+			$get_form = FileManipulation::getStubContents('admin_resource_get_form', [
+				'FORM_FIELDS' => join("\n\n", $form_fields),
+			]);
+		}
+		
+		if(in_array('read', $this->actions))
+		{
+			$uses[] = 'use S4mpp\AdminPanel\Elements\ItemView;';
+
+			$get_read = FileManipulation::getStubContents('admin_resource_get_read', [
+				'READ_FIELDS' => join("\n\n", $read_fields),
+			]);
+		}
+
 		usort($uses, function($a, $b) {
             return strlen($a) - strlen($b);
         });
@@ -363,8 +401,8 @@ class Resource
 			'USES' => join("\n", array_unique($uses)),
 			'ACTIONS' => $actions,
 			'TABLE_FIELDS' => join("\n\n", $table_fields),
-			'FORM_FIELDS' => join("\n\n", $form_fields),
-			'READ_FIELDS' => join("\n\n", $read_fields),
+			'GET_FORM' => $get_read ?? null,
+			'GET_READ' => $get_form ?? null,
 		]);
 
 		info('Admin Resource created successfully');

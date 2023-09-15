@@ -2,8 +2,6 @@
 
 namespace App\AdminPanel;
 
-
-
 {{ USES }}
 
 class {{ CLASS }} extends Resource
@@ -18,20 +16,6 @@ class {{ CLASS }} extends Resource
 {{ TABLE_FIELDS }}
         ];
     }
-
-    public function getForm()
-    {
-        return [
-            Card::create('', [
-{{ FORM_FIELDS }}
-            ])
-        ];
-    }
-
-    public function getRead()
-    {
-        return [
-{{ READ_FIELDS }}
-        ];
-    }
+{{ GET_FORM }}
+{{ GET_READ }}
 }

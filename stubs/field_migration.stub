@@ -1,1 +1,1 @@
-            $table->{{ TYPE }}('{{ COLUMN }}'){{ NULLABLE }}{{ REFERENCES }};
+            $table->{{ TYPE }}('{{ COLUMN }}'){{ UNIQUE }}{{ NULLABLE }}{{ REFERENCES }};

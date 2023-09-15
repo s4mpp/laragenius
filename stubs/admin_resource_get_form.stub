@@ -1,0 +1,9 @@
+
+    public function getForm()
+    {
+        return [
+            Card::create('', [
+{{ FORM_FIELDS }}
+            ])
+        ];
+    }
