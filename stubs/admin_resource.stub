@@ -16,6 +16,4 @@ class {{ CLASS }} extends Resource
 {{ TABLE_FIELDS }}
         ];
     }
-{{ GET_FORM }}
-{{ GET_READ }}
-}
+{{ GET_FORM }}{{ GET_READ }}}

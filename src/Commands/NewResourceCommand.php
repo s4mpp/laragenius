@@ -26,7 +26,6 @@ class NewResourceCommand extends Command
 	public function handle(): void
     {
         $this->translator = new GoogleTranslate('pt-br');
-
         $this->translator->setClient('webapp');
 
         $resource_name = text(label: 'Name of resource', placeholder: 'Ex.: User', required: true);
@@ -54,6 +53,10 @@ class NewResourceCommand extends Command
         
         $enums = $this->_collectEnums();
 
+        $folder = 'laragenius';
+        
+        $this->_makeDirectoryIfNotExists($folder);
+
         $this->bar = $this->output->createProgressBar(1 + count($fields) + count($enums) + count($relations));
 
         $this->bar->setFormat('Gerando: [%bar%] %percent:3s%%');
@@ -69,11 +72,7 @@ class NewResourceCommand extends Command
         );
 
         $file_name = Str::snake(Str::lower($resource_name));
-        
-        $folder = 'laragenius';
-        
-        $this->_makeDirectoryIfNotExists($folder);
-        
+
         $file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
 
         File::put($file_path, json_encode($file_structure, JSON_PRETTY_PRINT));
@@ -95,14 +94,16 @@ class NewResourceCommand extends Command
 
     private function _getFileStructure(string $resource_name, array $fields, array $actions, array $relations, array $enums)
     {
-        return [
+        $content = [
             'name' => $resource_name,
-            'title' => Utils::translate($resource_name, $this->translator),
+            'title' => Utils::translate(Str::plural($resource_name), $this->translator),
             'fields' => $fields,
             'actions' => $actions,
             'relations' => $relations,
             'enums' => $enums,
         ];
+
+        return $content;
     }
 
     private function _collectFields()

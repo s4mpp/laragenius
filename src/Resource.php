@@ -214,6 +214,7 @@ class Resource
 				'TYPE' => 'tinyInteger',
 				'COLUMN'  => $enum->field,
 				'NULLABLE' => null,
+				'UNIQUE' => null,
 				'REFERENCES' => null,
 			]);
         }
@@ -224,6 +225,7 @@ class Resource
 				'TYPE' => 'foreignId',
 				'COLUMN'  => $relation->field,
 				'NULLABLE' => null,
+				'UNIQUE' => null,
 				'REFERENCES' => "->references('id')->on('".Utils::nameTable($relation->model)."')",
 			]);
         }
@@ -268,21 +270,23 @@ class Resource
 		{
 			$uses[] = "use App\Models\\".$relation->model.';';
 
+			$title = ucfirst($relation->title ?? Str::replace(['_id', '_'], ['', ' '], $relation->field));
+
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
-				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->title ?? $relation->field)),
+				'TITLE'  => $title,
 				'NAME'  => Str::replace('_id', '', $relation->field),
 				'MODIFIERS' => "->relation('".($relation->fk_label ?? 'id')."')",
 			]);
 
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
-				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->title ?? $relation->field)),
+				'TITLE'  => $title,
 				'NAME'  => $relation->field,
 				'MODIFIERS' => '->relation('.$relation->model."::all(), '".($relation->fk_label ?? 'id')."')",
 				'NOT_REQUIRED' => null
 			]);
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
-				'TITLE'  => Str::replace(['_id', '_'], ['', ' '], ucfirst($relation->title ?? $relation->field)),
+				'TITLE'  => $title,
 				'NAME'  => $relation->field,
 				'MODIFIERS' => null
 			]);
@@ -297,6 +301,9 @@ class Resource
 				case 'date':
 					$field_modifiers[] = '->date()';
 					$table_modifiers[] = "->datetime('d/m/Y')";
+				
+				case 'boolean':
+					$table_modifiers[] = "->align('center')";
 					
 				case 'datetime':
 					$field_modifiers[] = '->datetime()';
@@ -304,13 +311,13 @@ class Resource
 					break;
 				
 				case 'decimal':
-					$field_modifiers[] = '->decimal()->min(0.1)';
+					$field_modifiers[] = "->decimal()->min(0.1)->align('right')";
 					break;
 				
 				case 'integer':
 				case 'tinyInteger':
 				case 'bigInteger':
-					$field_modifiers[] = '->integer()->min(1)';
+					$field_modifiers[] = "->integer()->min(1)->align('right')";
 					break;
 				
 				case 'text':
@@ -323,21 +330,23 @@ class Resource
 				$field_modifiers[] = '->unique()';
 			}
 
+			$title = ucfirst($field->title ?? Str::replace('_', ' ', $field->name));
+
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
-				'TITLE'  => Str::replace('_', ' ', ucfirst($field->name)),
+				'TITLE'  => $title,
 				'NAME'  => $field->name,
 				'MODIFIERS' => join('', $table_modifiers),
 			]);
 			
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
-				'TITLE'  => Str::replace('_', ' ', ucfirst($field->name)),
+				'TITLE'  => $title,
 				'NAME'  => $field->name,
 				'MODIFIERS' => join('', $field_modifiers),
 				'NOT_REQUIRED' => !$field->required ? '->notRequired()' : null,
 			]);
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
-				'TITLE'  => Str::replace('_', ' ', ucfirst($field->name)),
+				'TITLE'  => $title,
 				'NAME'  => $field->name,
 				'MODIFIERS' => join('', $read_modifiers),
 			]);
@@ -347,21 +356,23 @@ class Resource
 		{
 			$uses[] = "use App\Enums\\".$enum->enum.';';
 
+			$title = ucfirst($enum->title ?? Str::replace('_', ' ', $enum->field));
+
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
-				'TITLE'  => Str::replace('_', ' ', ucfirst($enum->field)),
+				'TITLE'  => $title,
 				'NAME'  => $enum->field,
-				'MODIFIERS' => '->enum('.$enum->enum.'::class)',
+				'MODIFIERS' => '->enum()',
 			]);
 
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
-				'TITLE'  => Str::replace('_', ' ', ucfirst($enum->field)),
+				'TITLE'  => $title,
 				'NAME'  => $enum->field,
 				'MODIFIERS' => '->enum('.$enum->enum.'::cases())',
 				'NOT_REQUIRED' => null
 			]);
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
-				'TITLE'  => Str::replace('_', ' ', ucfirst($enum->field)),
+				'TITLE'  => $title,
 				'NAME'  => $enum->field,
 				'MODIFIERS' => '->enum()'
 			]);

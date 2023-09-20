@@ -9,7 +9,6 @@ use S4mpp\Laragenius\FileManipulation;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\note;
-use function Laravel\Prompts\select;
 
 class CreateResourceCommand extends Command
 {
@@ -17,11 +16,20 @@ class CreateResourceCommand extends Command
 
 	protected $description = 'Generate files of new resource';
 
+	private array $files = [
+		'model' => 'Model',
+		'factory' => 'Factory',
+		'seeder' => 'Seeder',
+		'migration' => 'Migration',
+		'enums' => 'Enums',
+		'admin-resource' => 'Admin Resource'
+	];
+
 	public function handle()
     {
         $file_names = $this->_selectResource();
 
-		$with_admin = confirm('Generate Admin Resource?', default: true);
+		$files = multiselect(label: 'Files to generate:', options: $this->files, default: array_keys($this->files), required: true, scroll: 6);
 
 		foreach($file_names as $file_name)
 		{
@@ -37,18 +45,33 @@ class CreateResourceCommand extends Command
 				$resource_info['relations'],
 				$resource_info['enums']
 			);
+
+			if(in_array('model', $files))
+			{
+				$resource->createModel();
+			}
+			
+			if(in_array('factory', $files))
+			{
+				$resource->createFactory();
+			}
+						
+			if(in_array('seeder', $files))
+			{
+				$resource->createSeeder();
+			}
+						
+			if(in_array('migration', $files))
+			{
+				$resource->createMigration();
+			}
+						
+			if(in_array('enums', $files))
+			{
+				$resource->createEnums();
+			}
 	
-			$resource->createModel();
-			
-			$resource->createFactory();
-			
-			$resource->createSeeder();
-			
-			$resource->createMigration();
-			
-			$resource->createEnums();
-	
-			if($with_admin)
+			if(in_array('admin-resource', $files))
 			{
 				$resource->createAdminResource();
 			}
@@ -64,6 +87,6 @@ class CreateResourceCommand extends Command
 			$options[$file] = $resource->title;
 		}
 
-		return multiselect(label: 'Select the resource(s) to create', options: $options ?? []);
+		return multiselect(label: 'Select the resource(s) to create', options: $options ?? [], default: [], scroll: 15);
 	}
 }
