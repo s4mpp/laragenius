@@ -301,9 +301,11 @@ class Resource
 				case 'date':
 					$field_modifiers[] = '->date()';
 					$table_modifiers[] = "->datetime('d/m/Y')";
+					break;
 				
 				case 'boolean':
 					$table_modifiers[] = "->align('center')";
+					break;
 					
 				case 'datetime':
 					$field_modifiers[] = '->datetime()';
@@ -311,17 +313,19 @@ class Resource
 					break;
 				
 				case 'decimal':
-					$field_modifiers[] = "->decimal()->min(0.1)->align('right')";
+					$field_modifiers[] = "->decimal()->min(0.1)";
+					$table_modifiers[] = "->align('right')";
 					break;
 				
 				case 'integer':
 				case 'tinyInteger':
 				case 'bigInteger':
-					$field_modifiers[] = "->integer()->min(1)->align('right')";
+					$field_modifiers[] = "->integer()->min(1)";
+					$table_modifiers[] = "->align('right')";
 					break;
 				
 				case 'text':
-					$field_modifiers[] = '->textarea()->rows(4)';
+					$field_modifiers[] = '->textarea(4)';
 					break;
 			}
 

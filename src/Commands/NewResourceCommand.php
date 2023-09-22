@@ -197,7 +197,7 @@ class NewResourceCommand extends Command
 
             $fields_mounted[] = [
                 'name' => Str::lower($name),
-                'title' => $field_loaded ? $field_loaded->title : Utils::translate($name, $this->translator),
+                'title' => $field_loaded ? ($field_loaded->title ?? $name) : Utils::translate($name, $this->translator),
                 'type' => Str::lower($type),
                 'required' => $field_loaded->required ?? true,
                 'unique' => $field_loaded->unique ?? false,
@@ -230,7 +230,7 @@ class NewResourceCommand extends Command
 
             $relations_mounted[] = [
                 'field' => $field_name,
-                'title' => ($relation_loaded) ? $relation_loaded->title : Utils::translate($exp[0], $this->translator),
+                'title' => ($relation_loaded) ? ($relation_loaded->title ?? $exp[0]) : Utils::translate($exp[0], $this->translator),
                 'model' => Str::ucfirst($exp[0]),
                 'fk_label' => $exp[1] ?? 'id',
                 'type' => 'belongsTo',
