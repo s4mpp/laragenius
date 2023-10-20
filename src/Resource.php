@@ -287,8 +287,8 @@ class Resource
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
 				'TITLE'  => $title,
-				'NAME'  => $relation->field,
-				'MODIFIERS' => null
+				'NAME'  => Str::replace('_id', '', $relation->field),
+				'MODIFIERS' => "->relation('".($relation->fk_label ?? 'id')."')",
 			]);
 		}
 
@@ -301,15 +301,19 @@ class Resource
 				case 'date':
 					$field_modifiers[] = '->date()';
 					$table_modifiers[] = "->datetime('d/m/Y')";
+					$read_modifiers[] = "->datetime('d/m/Y')";
 					break;
 				
 				case 'boolean':
-					$table_modifiers[] = "->align('center')";
+					$field_modifiers[] = '->boolean()';
+					$table_modifiers[] = "->boolean()->align('center')";
+					$read_modifiers[] = "->boolean()";
 					break;
 					
 				case 'datetime':
-					$field_modifiers[] = '->datetime()';
+					$field_modifiers[] = '->date()';
 					$table_modifiers[] = "->datetime('d/m/Y H:i')";
+					$read_modifiers[] = "->datetime('d/m/Y H:i')";
 					break;
 				
 				case 'decimal':

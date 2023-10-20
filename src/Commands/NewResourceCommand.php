@@ -25,9 +25,6 @@ class NewResourceCommand extends Command
 
 	public function handle(): void
     {
-        $this->translator = new GoogleTranslate('pt-br');
-        $this->translator->setClient('webapp');
-
         $resource_name = text(label: 'Name of resource', placeholder: 'Ex.: User', required: true);
 
         $resource = FileManipulation::findResourceFile($resource_name.'.json');
@@ -38,6 +35,8 @@ class NewResourceCommand extends Command
 
             $this->info('Resource '.$resource_name.' loaded');
         }
+
+        $this->_loadTranslator();
         
         $fields = $this->_collectFields();
         
@@ -82,6 +81,24 @@ class NewResourceCommand extends Command
         info("File [".$folder."/".$file_name.".json] (".$file_structure['title'].") created.");
     }
 
+    private function _loadTranslator()
+    {
+        if($this->resource_loaded)  
+        {
+            return;
+        }
+
+        if(!Utils::isInternetConnected())
+        {            
+            $this->warn("Is not possible translate the fields. (NO INTERNET)");
+
+            return;
+        }
+        
+        $this->translator = new GoogleTranslate('pt-br');
+        $this->translator->setClient('webapp');
+    }
+
     private function _makeDirectoryIfNotExists(string $folder_name)
     {
 		if(!File::exists($folder_name))
@@ -94,9 +111,11 @@ class NewResourceCommand extends Command
 
     private function _getFileStructure(string $resource_name, array $fields, array $actions, array $relations, array $enums)
     {
+        $title = Str::plural($resource_name);
+
         $content = [
             'name' => $resource_name,
-            'title' => Utils::translate(Str::plural($resource_name), $this->translator),
+            'title' => (!$this->resource_loaded) ? Utils::translate($title, $this->translator) : $title,
             'fields' => $fields,
             'actions' => $actions,
             'relations' => $relations,
