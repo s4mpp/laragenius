@@ -1,1 +1,1 @@
-				Field::create('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }}{{ NOT_REQUIRED }},
+			Input::{{ FACTORY }}('{{ TITLE }}', '{{ NAME }}'{{ ADDITIONAL_PARAMS }}){{ MODIFIERS }}{{ NOT_REQUIRED }},

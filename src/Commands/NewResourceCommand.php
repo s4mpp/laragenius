@@ -23,8 +23,12 @@ class NewResourceCommand extends Command
 
     private $translator;
 
+    private string $folder;
+
 	public function handle(): void
     {
+        $this->folder = 'laragenius';
+
         $resource_name = text(label: 'Name of resource', placeholder: 'Ex.: User', required: true);
 
         $resource = FileManipulation::findResourceFile($resource_name.'.json');
@@ -51,10 +55,8 @@ class NewResourceCommand extends Command
         $relations = $this->_collectRelations();
         
         $enums = $this->_collectEnums();
-
-        $folder = 'laragenius';
         
-        $this->_makeDirectoryIfNotExists($folder);
+        $this->_makeDirectoryIfNotExists();
 
         $this->bar = $this->output->createProgressBar(1 + count($fields) + count($enums) + count($relations));
 
@@ -72,13 +74,13 @@ class NewResourceCommand extends Command
 
         $file_name = Str::snake(Str::lower($resource_name));
 
-        $file_path = $folder.DIRECTORY_SEPARATOR.$file_name.'.json';
+        $file_path = $this->folder.DIRECTORY_SEPARATOR.$file_name.'.json';
 
         File::put($file_path, json_encode($file_structure, JSON_PRETTY_PRINT));
 
         $this->bar->finish();
         
-        info("File [".$folder."/".$file_name.".json] (".$file_structure['title'].") created.");
+        info("File [".$this->folder."/".$file_name.".json] (".$file_structure['title'].") created.");
     }
 
     private function _loadTranslator()
@@ -99,23 +101,29 @@ class NewResourceCommand extends Command
         $this->translator->setClient('webapp');
     }
 
-    private function _makeDirectoryIfNotExists(string $folder_name)
+    private function _makeDirectoryIfNotExists()
     {
-		if(!File::exists($folder_name))
+		if(!File::exists($this->folder))
 		{
-            File::makeDirectory($folder_name);
+            File::makeDirectory($this->folder);
             
-			$this->info("Folder '{$folder_name}' created successfully.");
+			$this->info("Folder '{$this->folder}' created successfully.");
         }
+    }
+
+    private function _getTotalFilesGenerated(): int
+    {
+        $files = File::files($this->folder);
+
+        return count($files) + 1;
     }
 
     private function _getFileStructure(string $resource_name, array $fields, array $actions, array $relations, array $enums)
     {
-        $title = Str::plural($resource_name);
-
         $content = [
+            'order' => ($this->resource_loaded) ? ($this->resource_loaded['order'] ?? 0) : $this->_getTotalFilesGenerated(),
             'name' => $resource_name,
-            'title' => (!$this->resource_loaded) ? Utils::translate($title, $this->translator) : $title,
+            'title' => ($this->resource_loaded) ? $this->resource_loaded['title'] : Utils::translate(Str::plural($resource_name), $this->translator),
             'fields' => $fields,
             'actions' => $actions,
             'relations' => $relations,

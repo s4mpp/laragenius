@@ -1,9 +1,7 @@
 
-    public function getForm()
+    public function form()
     {
         return [
-            Card::create('', [
 {{ FORM_FIELDS }}
-            ])
         ];
     }

@@ -1,1 +1,1 @@
-			ItemView::create('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }},
+			ItemView::text('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }},

@@ -31,19 +31,19 @@ class CreateResourceCommand extends Command
 
 		$files = multiselect(label: 'Files to generate:', options: $this->files, default: array_keys($this->files), required: true, scroll: 6);
 
-		foreach($file_names as $file_name)
+		foreach($file_names as $i => $file_name)
 		{
-			note('Generating resource '.$file_name.'.json');
+			note('Generating resource '.$file_name);
 
 			$resource_info = FileManipulation::findResourceFile($file_name);
 	
 			$resource = new Resource(
-				$resource_info['name'],
-				$resource_info['title'],
-				$resource_info['fields'],
-				$resource_info['actions'],
-				$resource_info['relations'],
-				$resource_info['enums']
+				$resource_info['name'] ?? '',
+				$resource_info['title'] ?? '',
+				$resource_info['fields'] ?? [],
+				$resource_info['actions'] ?? [],
+				$resource_info['relations'] ?? [],
+				$resource_info['enums'] ?? []
 			);
 
 			if(in_array('model', $files))
@@ -63,7 +63,7 @@ class CreateResourceCommand extends Command
 						
 			if(in_array('migration', $files))
 			{
-				$resource->createMigration();
+				$resource->createMigration($i);
 			}
 						
 			if(in_array('enums', $files))
@@ -80,11 +80,11 @@ class CreateResourceCommand extends Command
 
 	private function _selectResource()
 	{
-		$resources = FileManipulation::getResourcesFiles();
+		$resources = collect(FileManipulation::getResourcesFiles())->sortBy('order');
 
 		foreach($resources as $file => $resource)
 		{
-			$options[$file] = $resource->title;
+			$options[$file] = $resource->title.' ('.($resource->order ?? 0).')';
 		}
 
 		return multiselect(label: 'Select the resource(s) to create', options: $options ?? [], default: [], scroll: 15);

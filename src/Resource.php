@@ -176,13 +176,13 @@ class Resource
 		info('Seeder created successfully');
 	}
 
-	public function createMigration()
+	public function createMigration(int $order)
 	{
 		$table = Utils::nameTable($this->name);
 
 		$name = 'create_'.$table.'_table';
 
-		$name_file = date('Y_m_d_His').'_'.$name.'.php';
+		$name_file = date('Y_m_d_Hi').Str::padLeft($order, 2, '0').'_'.$name.'.php';
 
 		$dir = app_path('../database/migrations');
 
@@ -260,37 +260,11 @@ class Resource
 	public function createAdminResource()
 	{
 		$uses = [
-			'use S4mpp\AdminPanel\Elements\Column;',
-			'use S4mpp\AdminPanel\Resources\Resource;',
+			'use S4mpp\AdminPanel\Factories\Column;',
+			'use S4mpp\AdminPanel\Resource;',
 		];
 
-		$table_fields = $form_fields = $read_fields = [];
-
-		foreach($this->relations as $relation)
-		{
-			$uses[] = "use App\Models\\".$relation->model.';';
-
-			$title = ucfirst($relation->title ?? Str::replace(['_id', '_'], ['', ' '], $relation->field));
-
-			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
-				'TITLE'  => $title,
-				'NAME'  => Str::replace('_id', '', $relation->field),
-				'MODIFIERS' => "->relation('".($relation->fk_label ?? 'id')."')",
-			]);
-
-			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
-				'TITLE'  => $title,
-				'NAME'  => $relation->field,
-				'MODIFIERS' => '->relation('.$relation->model."::all(), '".($relation->fk_label ?? 'id')."')",
-				'NOT_REQUIRED' => null
-			]);
-
-			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
-				'TITLE'  => $title,
-				'NAME'  => Str::replace('_id', '', $relation->field),
-				'MODIFIERS' => "->relation('".($relation->fk_label ?? 'id')."')",
-			]);
-		}
+		$table_fields = $filter_fields = $form_fields = $read_fields = $search_fields = [];
 
 		foreach($this->fields as $field)
 		{
@@ -299,37 +273,44 @@ class Resource
 			switch($field->type)
 			{
 				case 'date':
-					$field_modifiers[] = '->date()';
-					$table_modifiers[] = "->datetime('d/m/Y')";
-					$read_modifiers[] = "->datetime('d/m/Y')";
+					$field_factory = 'date';
+					$table_factory = 'date';
+					break;
+				
+				case 'datetime':
+					$table_factory = 'datetime';
 					break;
 				
 				case 'boolean':
-					$field_modifiers[] = '->boolean()';
-					$table_modifiers[] = "->boolean()->align('center')";
-					$read_modifiers[] = "->boolean()";
+					$table_factory = 'boolean';
+					$field_factory = 'boolean';
 					break;
 					
-				case 'datetime':
-					$field_modifiers[] = '->date()';
-					$table_modifiers[] = "->datetime('d/m/Y H:i')";
-					$read_modifiers[] = "->datetime('d/m/Y H:i')";
-					break;
-				
 				case 'decimal':
-					$field_modifiers[] = "->decimal()->min(0.1)";
+					$table_factory = 'text';
+					$field_factory = 'decimal';
+					$field_modifiers[] = "->min(0.1)";
 					$table_modifiers[] = "->align('right')";
 					break;
 				
 				case 'integer':
 				case 'tinyInteger':
 				case 'bigInteger':
-					$field_modifiers[] = "->integer()->min(1)";
+					$table_factory = 'text';
+					$field_factory = 'integer';
+					$field_modifiers[] = "->min(1)";
 					$table_modifiers[] = "->align('right')";
 					break;
 				
 				case 'text':
-					$field_modifiers[] = '->textarea(4)';
+					$table_factory = 'longText';
+					$field_factory = 'textarea';
+
+				case 'string':
+					$search_fields[] = "'".$field->name."' => '".$field->title."'";
+					$table_factory = 'text';
+					$field_factory = 'text';
+					
 					break;
 			}
 
@@ -339,16 +320,20 @@ class Resource
 			}
 
 			$title = ucfirst($field->title ?? Str::replace('_', ' ', $field->name));
+			
 
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
 				'TITLE'  => $title,
+				'FACTORY'  => $table_factory,
 				'NAME'  => $field->name,
 				'MODIFIERS' => join('', $table_modifiers),
 			]);
 			
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
 				'TITLE'  => $title,
+				'FACTORY'  => $field_factory,
 				'NAME'  => $field->name,
+				'ADDITIONAL_PARAMS' => null,
 				'MODIFIERS' => join('', $field_modifiers),
 				'NOT_REQUIRED' => !$field->required ? '->notRequired()' : null,
 			]);
@@ -363,18 +348,29 @@ class Resource
 		foreach($this->enums as $enum)
 		{
 			$uses[] = "use App\Enums\\".$enum->enum.';';
+			$uses[] = "use S4mpp\\AdminPanel\\Factories\\Filter;";
 
 			$title = ucfirst($enum->title ?? Str::replace('_', ' ', $enum->field));
 
+			$filter_fields[] = FileManipulation::getStubContents('admin_resource_filter', [
+				'TITLE'  => $title,
+				'FACTORY'  => 'multiple',
+				'NAME'  => $field->name,
+				'ADDITIONAL_PARAMS' => ', '.$enum->enum.'::cases()',
+			]);
+
 			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
 				'TITLE'  => $title,
+				'FACTORY'  => 'badge',
 				'NAME'  => $enum->field,
 				'MODIFIERS' => '->enum()',
 			]);
 
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
 				'TITLE'  => $title,
+				'FACTORY'  => 'badge',
 				'NAME'  => $enum->field,
+				'ADDITIONAL_PARAMS' => null,
 				'MODIFIERS' => '->enum('.$enum->enum.'::cases())',
 				'NOT_REQUIRED' => null
 			]);
@@ -386,6 +382,35 @@ class Resource
 			]);
 		}
 
+		foreach($this->relations as $relation)
+		{
+			$uses[] = "use App\Models\\".$relation->model.';';
+
+			$title = ucfirst($relation->title ?? Str::replace(['_id', '_'], ['', ' '], $relation->field));
+
+			$table_fields[] = FileManipulation::getStubContents('admin_resource_table_column', [
+				'TITLE'  => $title,
+				'FACTORY'  => 'text',
+				'NAME'  => Str::replace('_id', '', $relation->field).'.'.($relation->fk_label ?? 'id'),
+				'MODIFIERS' => null,
+			]);
+
+			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
+				'TITLE'  => $title,
+				'FACTORY'  => 'select',
+				'NAME'  => $relation->field,
+				'ADDITIONAL_PARAMS' => ', '.$relation->model."::get(), '".($relation->fk_label ?? 'id')."'",
+				'MODIFIERS' => null,
+				'NOT_REQUIRED' => null
+			]);
+
+			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
+				'TITLE'  => $title,
+				'NAME'  => Str::replace('_id', '', $relation->field).'.'.($relation->fk_label ?? 'id'),
+				'MODIFIERS' => null,
+			]);
+		}
+
 		$actions = join(', ', array_map(function(string $action) {
 			return "'$action'";
 		}, $this->actions));
@@ -394,7 +419,7 @@ class Resource
 		if(in_array('create', $this->actions) || in_array('update', $this->actions))
 		{
 			$uses[] = 'use S4mpp\AdminPanel\Elements\Card;';
-			$uses[] = 'use S4mpp\AdminPanel\Elements\Field;';
+			$uses[] = 'use S4mpp\AdminPanel\Factories\Input;';
 			
 			$get_form = FileManipulation::getStubContents('admin_resource_get_form', [
 				'FORM_FIELDS' => join("\n\n", $form_fields),
@@ -403,7 +428,7 @@ class Resource
 		
 		if(in_array('read', $this->actions))
 		{
-			$uses[] = 'use S4mpp\AdminPanel\Elements\ItemView;';
+			$uses[] = 'use S4mpp\AdminPanel\Factories\ItemView;';
 
 			$get_read = FileManipulation::getStubContents('admin_resource_get_read', [
 				'READ_FIELDS' => join("\n\n", $read_fields),
@@ -419,7 +444,9 @@ class Resource
 			'TITLE' => Str::plural($this->title ?? $this->name),
 			'USES' => join("\n", array_unique($uses)),
 			'ACTIONS' => $actions,
+			'SEARCH_FIELDS' => join(", ", $search_fields),
 			'TABLE_FIELDS' => join("\n\n", $table_fields),
+			'FILTER_FIELDS' => join("\n\n", $filter_fields),
 			'GET_FORM' => $get_read ?? null,
 			'GET_READ' => $get_form ?? null,
 		]);

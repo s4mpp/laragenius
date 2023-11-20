@@ -9,8 +9,17 @@ class {{ CLASS }} extends Resource
     public $title = '{{ TITLE }}';
 
     public $actions = [{{ ACTIONS }}];
+    
+    public $search = [{{ SEARCH_FIELDS }}];
 
-    public function getTable()
+    public function filter()
+    {
+        return [
+{{ FILTER_FIELDS }}
+        ];
+    }
+
+    public function table()
     {
         return [
 {{ TABLE_FIELDS }}
