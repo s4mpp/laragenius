@@ -275,20 +275,24 @@ class Resource
 				case 'date':
 					$field_factory = 'date';
 					$table_factory = 'date';
+					$read_factory = 'date';
 					break;
 				
 				case 'datetime':
 					$table_factory = 'datetime';
+					$read_factory = 'datetime';
 					break;
 				
 				case 'boolean':
 					$table_factory = 'boolean';
 					$field_factory = 'boolean';
+					$read_factory = 'boolean';
 					break;
 					
 				case 'decimal':
 					$table_factory = 'text';
 					$field_factory = 'decimal';
+					$read_factory = 'text';
 					$field_modifiers[] = "->min(0.1)";
 					$table_modifiers[] = "->align('right')";
 					break;
@@ -297,6 +301,7 @@ class Resource
 				case 'tinyInteger':
 				case 'bigInteger':
 					$table_factory = 'text';
+					$read_factory = 'text';
 					$field_factory = 'integer';
 					$field_modifiers[] = "->min(1)";
 					$table_modifiers[] = "->align('right')";
@@ -305,11 +310,13 @@ class Resource
 				case 'text':
 					$table_factory = 'longText';
 					$field_factory = 'textarea';
+					$read_factory = 'textarea';
 
 				case 'string':
 					$search_fields[] = "'".$field->name."' => '".$field->title."'";
 					$table_factory = 'text';
 					$field_factory = 'text';
+					$read_factory = 'text';
 					
 					break;
 			}
@@ -340,6 +347,7 @@ class Resource
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
 				'TITLE'  => $title,
+				'FACTORY'  => $read_factory,
 				'NAME'  => $field->name,
 				'MODIFIERS' => join('', $read_modifiers),
 			]);
@@ -355,7 +363,7 @@ class Resource
 			$filter_fields[] = FileManipulation::getStubContents('admin_resource_filter', [
 				'TITLE'  => $title,
 				'FACTORY'  => 'multiple',
-				'NAME'  => $field->name,
+				'NAME'  => $enum->field,
 				'ADDITIONAL_PARAMS' => ', '.$enum->enum.'::cases()',
 			]);
 
@@ -363,22 +371,23 @@ class Resource
 				'TITLE'  => $title,
 				'FACTORY'  => 'badge',
 				'NAME'  => $enum->field,
-				'MODIFIERS' => '->enum()',
+				'MODIFIERS' => null,
 			]);
 
 			$form_fields[] = FileManipulation::getStubContents('admin_resource_form_field', [
 				'TITLE'  => $title,
-				'FACTORY'  => 'badge',
+				'FACTORY'  => 'radio',
 				'NAME'  => $enum->field,
-				'ADDITIONAL_PARAMS' => null,
-				'MODIFIERS' => '->enum('.$enum->enum.'::cases())',
+				'ADDITIONAL_PARAMS' => ', '.$enum->enum.'::cases()',
+				'MODIFIERS' => null,
 				'NOT_REQUIRED' => null
 			]);
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
 				'TITLE'  => $title,
+				'FACTORY'  => 'badge',
 				'NAME'  => $enum->field,
-				'MODIFIERS' => '->enum()'
+				'MODIFIERS' => null
 			]);
 		}
 
@@ -406,6 +415,7 @@ class Resource
 
 			$read_fields[] = FileManipulation::getStubContents('admin_resource_read_field', [
 				'TITLE'  => $title,
+				'FACTORY'  => 'text',
 				'NAME'  => Str::replace('_id', '', $relation->field).'.'.($relation->fk_label ?? 'id'),
 				'MODIFIERS' => null,
 			]);
