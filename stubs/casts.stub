@@ -1,3 +1,4 @@
-protected $casts = [
+
+	protected $casts = [
 {{ CASTS }}
 	];

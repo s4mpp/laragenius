@@ -1,0 +1,9 @@
+
+
+    public function filter()
+    {
+        return [
+{{ FILTER_FIELDS }}
+        ];
+    }
+

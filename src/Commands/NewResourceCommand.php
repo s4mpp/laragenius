@@ -68,7 +68,7 @@ class NewResourceCommand extends Command
             $resource_name,
             $this->_createFields($fields),
             $actions,
-            $this->_createRelations($relations),
+            $this->_createRelations($resource_name, $relations),
             $this->_createEnums($resource_name, $enums),
         );
 
@@ -233,11 +233,10 @@ class NewResourceCommand extends Command
             $this->bar->advance();
         }
 
-
         return $fields_mounted ?? [];
     }
 
-    private  function _createRelations(array $relations = [])
+    private  function _createRelations(string $resource_name, array $relations = [])
     {
         foreach($relations as $relation)
         {
@@ -260,13 +259,40 @@ class NewResourceCommand extends Command
                 'title' => ($relation_loaded) ? ($relation_loaded->title ?? $exp[0]) : Utils::translate($exp[0], $this->translator),
                 'model' => Str::ucfirst($exp[0]),
                 'fk_label' => $exp[1] ?? 'id',
-                'type' => 'belongsTo',
             ];
 
             $this->bar->advance();
+
+            $this->_createChild($exp[0], $resource_name);
         }
 
         return $relations_mounted ?? [];
+    }
+
+    private function _createChild(string $child_model, string $resource_name)
+    {
+        $resource = FileManipulation::findResourceFile($child_model.'.json')->toArray();
+
+        if(!$resource)
+        {
+            return;
+        }
+
+        if(!isset($resource['childs']))
+        {
+            $resource['childs'] = [];
+        }
+
+        $resource['childs'][] = [
+            'model' => Str::ucfirst($resource_name),
+            'name' => Str::camel(Str::plural($resource_name))
+        ];
+
+        $file_path = $this->folder.DIRECTORY_SEPARATOR.strtolower($child_model).'.json';
+
+        File::put($file_path, json_encode($resource, JSON_PRETTY_PRINT));
+
+        info("File [".$this->folder."/".$child_model.".json] (".$resource['title'].") updated.");
     }
 
     private  function _createEnums(string $resource_name, array $enums = [])

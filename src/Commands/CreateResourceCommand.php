@@ -43,7 +43,8 @@ class CreateResourceCommand extends Command
 				$resource_info['fields'] ?? [],
 				$resource_info['actions'] ?? [],
 				$resource_info['relations'] ?? [],
-				$resource_info['enums'] ?? []
+				$resource_info['enums'] ?? [],
+				$resource_info['childs'] ?? [],
 			);
 
 			if(in_array('model', $files))

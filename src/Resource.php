@@ -16,7 +16,8 @@ class Resource
 		private array $fields,
 		private array $actions,
 		private array $relations,
-		private array $enums)
+		private array $enums,
+		private array $childs)
 	{}
 
 	public function createModel()
@@ -28,7 +29,7 @@ class Resource
 
 		$casts = $relationships = [];
 
-		foreach($this->fields as $field)
+		foreach($this->fields ?? [] as $field)
 		{
 			if($field->type == 'date' || $field->type == 'datetime')
 			{
@@ -36,21 +37,32 @@ class Resource
 			}
 		}
 
-		foreach($this->enums as $enum)
+		foreach($this->enums ?? [] as $enum)
 		{
 			$uses[] = "use App\Enums\\".$enum->enum.';';
 			
 			$casts[] = str_repeat("\t", 2)."'".$enum->field."' => ".$enum->enum."::class,";
 		}
 
-		foreach($this->relations as $relation)
+		foreach($this->relations ?? [] as $relation)
 		{
 			$uses[] = "use App\Models\\".$relation->model.';';
 			
 			$relationships[] = FileManipulation::getStubContents('relationship', [
 				'FIELD' => str_replace('_id', '', $relation->field),
-				'TYPE' => $relation->type,
+				'TYPE' => 'belongsTo',
 				'MODEL' => $relation->model
+			]);
+		}
+		
+		foreach($this->childs ?? [] as $child)
+		{
+			$uses[] = "use App\Models\\".$child->model.';';
+			
+			$relationships[] = FileManipulation::getStubContents('relationship', [
+				'FIELD' => $child->name,
+				'TYPE' => 'hasMany',
+				'MODEL' => $child->model
 			]);
 		}
 
@@ -61,7 +73,7 @@ class Resource
 		FileManipulation::putContentFile('model', 'app/Models/'.$this->name.'.php', [
 			'CLASS' => $this->name,
 			'USES' => join("\n", array_unique($uses)),
-			'RELATIONSHIPS' => join("\n", $relationships),
+			'RELATIONSHIPS' => join("\n\n", $relationships),
 			'CASTS' => ($casts) ? FileManipulation::getStubContents('casts', [
 				'CASTS' => join("\n", $casts),
 			]) : null
@@ -290,7 +302,7 @@ class Resource
 					break;
 					
 				case 'decimal':
-					$table_factory = 'text';
+					$table_factory = 'decimal';
 					$field_factory = 'decimal';
 					$read_factory = 'text';
 					$field_modifiers[] = "->min(0.1)";
@@ -311,15 +323,17 @@ class Resource
 					$table_factory = 'longText';
 					$field_factory = 'textarea';
 					$read_factory = 'textarea';
+					break;
 
 				case 'string':
-					$search_fields[] = "'".$field->name."' => '".$field->title."'";
+					$search_fields[] = "\n\t\t'".$field->name."' => '".$field->title."',";
 					$table_factory = 'text';
 					$field_factory = 'text';
 					$read_factory = 'text';
 					
 					break;
 			}
+
 
 			if(isset($field->unique) && $field->unique)
 			{
@@ -445,6 +459,22 @@ class Resource
 			]);
 		}
 
+		if($search_fields)
+		{
+			$get_search = FileManipulation::getStubContents('admin_resource_get_search', [
+				'SEARCH_FIELDS' => join("\n\n", $search_fields),
+			]);
+			
+		}
+
+		if($filter_fields)
+		{
+			$get_filter = FileManipulation::getStubContents('admin_resource_get_filter', [
+				'FILTER_FIELDS' => join("\n\n", $filter_fields),
+			]);
+		}
+		
+
 		usort($uses, function($a, $b) {
             return strlen($a) - strlen($b);
         });
@@ -454,9 +484,9 @@ class Resource
 			'TITLE' => Str::plural($this->title ?? $this->name),
 			'USES' => join("\n", array_unique($uses)),
 			'ACTIONS' => $actions,
-			'SEARCH_FIELDS' => join(", ", $search_fields),
 			'TABLE_FIELDS' => join("\n\n", $table_fields),
-			'FILTER_FIELDS' => join("\n\n", $filter_fields),
+			'GET_FILTER' => $get_filter ?? null,
+			'GET_SEARCH' => $get_search ?? null,
 			'GET_FORM' => $get_read ?? null,
 			'GET_READ' => $get_form ?? null,
 		]);

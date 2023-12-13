@@ -1,0 +1,2 @@
+    public $search = [{{ SEARCH_FIELDS }}
+    ];

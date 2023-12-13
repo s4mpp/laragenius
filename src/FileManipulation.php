@@ -9,13 +9,24 @@ abstract class FileManipulation
 	public static function putContentFile(string $stub_name, string $destination, $stub_variables = [])
     {
         $filesystem = new Filesystem;
+
+        $path = explode(DIRECTORY_SEPARATOR, $destination);
+
+        array_pop($path);
+
+        $folder = join(DIRECTORY_SEPARATOR, $path);
+        
+        if(!$filesystem->exists($folder))
+        {
+            $filesystem->makeDirectory($folder);
+        }
         
         $content_file = self::getStubContents($stub_name, $stub_variables);
 
 		$content_file = preg_replace("/\n    \n\n/", "\n", $content_file);
         $content_file = preg_replace("/\n\n\n/", "\n", $content_file);
 
-            $filesystem->put($destination, $content_file);
+        $filesystem->put($destination, $content_file);
     }
 
     public static function getStubContents(string $stub_name, array $stub_variables = [])

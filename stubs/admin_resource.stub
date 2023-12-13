@@ -10,14 +10,9 @@ class {{ CLASS }} extends Resource
 
     public $actions = [{{ ACTIONS }}];
     
-    public $search = [{{ SEARCH_FIELDS }}];
+{{ GET_SEARCH }}
 
-    public function filter()
-    {
-        return [
-{{ FILTER_FIELDS }}
-        ];
-    }
+{{ GET_FILTER }}
 
     public function table()
     {
