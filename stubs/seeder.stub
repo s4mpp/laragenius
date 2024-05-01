@@ -1,0 +1,14 @@
+<?php
+
+namespace {{ NAMESPACE }};
+
+use Illuminate\Database\Seeder;
+use App\Models\{{ STUDLY_NAME }};
+
+class {{ STUDLY_NAME }}Seeder extends Seeder
+{
+    public function run()
+    {
+        {{ STUDLY_NAME }}::factory()->create();
+    }
+}
