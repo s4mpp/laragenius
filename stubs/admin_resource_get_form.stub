@@ -1,7 +1,0 @@
-
-    public function form()
-    {
-        return [
-{{ FORM_FIELDS }}
-        ];
-    }

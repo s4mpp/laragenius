@@ -1,7 +1,0 @@
-
-	public function read()
-    {
-        return [
-{{ READ_FIELDS }}
-        ];
-    }

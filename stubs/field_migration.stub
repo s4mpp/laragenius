@@ -1,1 +1,0 @@
-            $table->{{ TYPE }}('{{ COLUMN }}'){{ UNIQUE }}{{ NULLABLE }}{{ REFERENCES }};

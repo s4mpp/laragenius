@@ -1,1 +1,0 @@
-			ItemView::{{ FACTORY }}('{{ TITLE }}', '{{ NAME }}'){{ MODIFIERS }},
