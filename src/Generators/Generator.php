@@ -8,13 +8,10 @@ use S4mpp\Laragenius\Contracts\GeneratorInterface;
 
 abstract class Generator implements GeneratorInterface
 {
-    protected string $studly_name;
-
     protected string $folder;
 
     public function __construct(private Table $table)
     {
-        $this->studly_name = Str::studly(Str::singular($table->getName()));
     }
 
     public function getTable(): Table
@@ -39,7 +36,7 @@ abstract class Generator implements GeneratorInterface
     protected function getStubVariables(): array
     {
         return [
-            'STUDLY_NAME' => $this->studly_name,
+            'STUDLY_NAME' => Table::toModelName($this->table->getName()),
             'NAMESPACE' => $this->getNamespace(),
         ];
     }

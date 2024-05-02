@@ -1,0 +1,6 @@
+public function {{ NAME }}(): HasMany
+	{
+		return $this->hasMany({{ MODEL }}::class);
+	}
+
+	

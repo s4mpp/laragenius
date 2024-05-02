@@ -15,7 +15,7 @@ final class Seeder extends Generator
 
     public function getFilename(): string
     {
-        return $this->studly_name.'Seeder';
+        return $this->getTable()->getModelName().'Seeder';
     }
 
     public function getContent(): Stub

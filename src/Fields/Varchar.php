@@ -26,6 +26,8 @@ class Varchar implements FakerInterface
             return new Stub('factory/fakers/token');
         }
 
+        //TODO phone
+
         return new Stub('factory/fakers/word');
     }
 }

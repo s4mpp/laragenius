@@ -3,6 +3,7 @@
 namespace S4mpp\Laragenius\Generators;
 
 use S4mpp\Laragenius\Stub;
+use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Schema\Column;
 use S4mpp\Laragenius\Contracts\FakerInterface;
 
@@ -19,7 +20,7 @@ final class Factory extends Generator
 
     public function getFilename(): string
     {
-        return $this->studly_name.'Factory';
+        return $this->getTable()->getModelName().'Factory';
     }
 
     public function getContent(): Stub
@@ -37,7 +38,7 @@ final class Factory extends Generator
     {
         $definition = '';
 
-        foreach ($this->getColumns() as $column) {
+        foreach ($this->getColumns() as $column) { dump($column);
             $field_name = $column->getName();
 
             /** @var FakerInterface */
@@ -50,7 +51,7 @@ final class Factory extends Generator
             ]);
         }
 
-        return trim($definition);
+        return $definition;
     }
 
     /**
@@ -58,6 +59,12 @@ final class Factory extends Generator
      */
     private function getColumns(): array
     {
-        return array_filter($this->getTable()->getColumns(), fn ($column) => ! in_array($column->getName(), ['id', 'created_at', 'updated_at', 'deleted']));
+        $table = $this->getTable();
+
+        $table->loadUniqueColumns();
+
+        $table->loadColumns();
+
+        return $this->getTable()->getColumns();
     }
 }

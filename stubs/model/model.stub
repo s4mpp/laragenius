@@ -4,10 +4,13 @@ namespace {{ NAMESPACE }};
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+{{ USES }}
 
 class {{ STUDLY_NAME }} extends Model
 {
     use HasFactory;
 
     protected $casts = [];
+
+    {{ RELATIONSHIPS }}
 }

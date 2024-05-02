@@ -18,12 +18,15 @@ class TableTest extends TestCase
 		});
 
 		$table = new Table('table-example');
-
-		$this->assertEquals('table-example', $table->getName());
+		
+		$table->loadUniqueColumns();
+		$table->loadColumns();
 		
 		$columns = $table->getColumns();
-
+		
 		$first_column = $columns[0];
+		
+		$this->assertEquals('table-example', $table->getName());
 
 		$this->assertCount(2, $columns);
 		$this->assertContainsOnlyInstancesOf(Column::class, $columns);

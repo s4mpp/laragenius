@@ -9,28 +9,28 @@ class StubTest extends TestCase
 {
 	public function test_if_stub_is_stringable()
 	{
-		$stub = new Stub('model');
+		$stub = new Stub('use');
 
         $this->assertIsString((string)$stub);
 	}
 
 	public function test_fill()
 	{
-		$stub = new Stub('model');
+		$stub = new Stub('use');
 
         $stub->fill([
-			'NAMESPACE' => 'namespace_example'
+			'CLASS_PATH' => 'path_example'
 		]);
 
-		$this->assertStringContainsString('namespace_example', (string)$stub);
+		$this->assertStringContainsString('path_example', (string)$stub);
 	}
 
 	public function test_put()
 	{
-		$stub = new Stub('model');
+		$stub = new Stub('use');
 
-        $stub->put('file-model');
+        $stub->put('file-use');
 
-		$this->assertFileExists(base_path('file-model.php'));
+		$this->assertFileExists(base_path('file-use.php'));
 	}
 }

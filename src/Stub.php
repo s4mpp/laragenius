@@ -12,11 +12,10 @@ final class Stub
     {
         $file = file_get_contents('stubs/'.$file.'.stub', true);
 
-        if(!$file)
-        {
+        if (! $file) {
             return;
         }
-        
+
         $this->content = $file;
     }
 
@@ -29,14 +28,14 @@ final class Stub
     {
         return $this->file;
     }
-    
+
     /**
-     * @param array<string> $stub_variables
+     * @param  array<string>  $stub_variables
      */
     public function fill(array $stub_variables = []): self
     {
         foreach ($stub_variables as $search => $replace) {
-            $this->content = str_replace('{{ '.$search.' }}', $replace, $this->content);
+            $this->content = str_replace('{{ '.$search.' }}', trim($replace), $this->content);
         }
 
         return $this;

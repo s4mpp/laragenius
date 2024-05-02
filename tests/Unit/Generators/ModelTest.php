@@ -33,7 +33,7 @@ class ModelTest extends TestCase
 	{
 		$model = new Model(new Table('table-example'));
 
-		$this->assertSame('model', $model->getContent()->getNameFile());
+		$this->assertSame('model/model', $model->getContent()->getNameFile());
 	}
 
 }
