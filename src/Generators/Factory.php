@@ -38,7 +38,7 @@ final class Factory extends Generator
     {
         $definition = '';
 
-        foreach ($this->getColumns() as $column) { dump($column);
+        foreach ($this->getColumns() as $column) {
             $field_name = $column->getName();
 
             /** @var FakerInterface */
@@ -61,10 +61,21 @@ final class Factory extends Generator
     {
         $table = $this->getTable();
 
-        $table->loadUniqueColumns();
+        $table->loadColumns()->loadUniqueIndexes()->loadRelationships();
 
-        $table->loadColumns();
+        return array_filter($table->getColumns(), function($column) {
 
-        return $this->getTable()->getColumns();
+            if(in_array($column->getName(), ['id', 'created_at', 'updated_at', 'deleted_at']))
+            {
+                return false;
+            }
+
+            if(!empty($column->getRelationships()))
+            {
+                return false;
+            }
+
+            return true;
+        });
     }
 }

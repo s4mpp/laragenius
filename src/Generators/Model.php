@@ -45,22 +45,29 @@ final class Model extends Generator
     {
         $relationships = '';
 
-        foreach ($this->getTable()->getRelationships() as $relationship) {
-            $table_name = $relationship->getTableName();
+        $table = $this->getTable();
 
-            $type = $relationship->getType();
+        $table->loadColumns()->loadRelationships();
 
-            $this->uses[] = 'App\Models\\'.Table::toModelName($table_name);
-            $this->uses[] = $type->classRelationLaravel();
-
-            $stub_relationship = new Stub('model/'.$type->stub());
-
-            $stub_relationship->fill([
-                'NAME' => $type->nameMethod($table_name),
-                'MODEL' => Table::toModelName($table_name),
-            ]);
-
-            $relationships .= $stub_relationship;
+        foreach($table->getColumns() as $column)
+        {
+            foreach ($column->getRelationships() as $relationship) {
+                $table_name = $relationship->getTableName();
+    
+                $type = $relationship->getType();
+    
+                $this->uses[] = 'App\Models\\'.Table::toModelName($table_name);
+                $this->uses[] = $type->classRelationLaravel();
+    
+                $stub_relationship = new Stub('model/'.$type->stub());
+    
+                $stub_relationship->fill([
+                    'NAME' => $type->nameMethod($table_name),
+                    'MODEL' => Table::toModelName($table_name),
+                ]);
+    
+                $relationships .= $stub_relationship;
+            }
         }
 
         return $relationships;

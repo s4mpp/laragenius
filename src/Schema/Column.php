@@ -3,12 +3,17 @@
 namespace S4mpp\Laragenius\Schema;
 
 use S4mpp\Laragenius\Enums\ColumnType;
+use S4mpp\Laragenius\Schema\Relationship;
 
 class Column
 {
     private bool $nullable = false;
 
     private bool $unique = false;
+
+
+    /** @var array<Relationship> */
+    private array $relationships = [];
 
     public function __construct(private string $name, private ColumnType $type)
     {
@@ -17,6 +22,14 @@ class Column
     public function getType(): ColumnType
     {
         return $this->type;
+    }
+
+    /**
+     * @return array<Relationship>
+     */
+    public function getRelationships(): array
+    {
+        return $this->relationships;
     }
 
     public function isUnique(): bool
@@ -34,13 +47,22 @@ class Column
         return $this->name;
     }
 
-    public function setNullable(bool $nullable): void
+    public function addRelationship(Relationship $relationship): void
+    {
+        $this->relationships[] = $relationship;
+    }
+    
+    public function setNullable(bool $nullable): self
     {
         $this->nullable = $nullable;
-    }
 
-    public function setUnique(bool $is_unique): void
+        return $this;
+    }
+    
+    public function setUnique(bool $is_unique): self
     {
         $this->unique = $is_unique;
+        
+        return $this;
     }
 }

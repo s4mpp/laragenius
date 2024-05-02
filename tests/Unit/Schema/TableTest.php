@@ -19,12 +19,11 @@ class TableTest extends TestCase
 
 		$table = new Table('table-example');
 		
-		$table->loadUniqueColumns();
-		$table->loadColumns();
+		$table->loadColumns()->loadUniqueIndexes();
 		
 		$columns = $table->getColumns();
 		
-		$first_column = $columns[0];
+		$first_column = $columns['name'];
 		
 		$this->assertEquals('table-example', $table->getName());
 

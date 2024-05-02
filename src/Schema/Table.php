@@ -12,12 +12,6 @@ class Table
     /** @var array<Column> */
     private array $columns;
 
-    /** @var array<string> */
-    private array $uniques = [];
-
-    /** @var array<Relationship> */
-    private array $relationships = [];
-
     private const TABLES_EXCLUDED = [
         'failed_jobs',
         'migrations',
@@ -26,15 +20,12 @@ class Table
         'telescope_entries', 'telescope_entries_tags', 'telescope_monitoring',
     ];
 
-    private const COLUMNS_EXCLUDED = [
-        'id', 'created_at', 'updated_at', 'deleted_at'
-    ];
-
+    
 
     public function __construct(private string $name)
     {
     }
-    
+
     public static function toModelName(string $name)
     {
         return Str::studly(Str::singular($name));
@@ -58,15 +49,19 @@ class Table
         return $this->columns;
     }
 
-    /**	 *
-     * @return array<Relationship>
-     */
-    public function getRelationships(): array
+    public function loadColumns(): self
     {
-        return $this->relationships;
+        $columns = Schema::getColumns($this->name);
+
+        foreach($columns as $column)
+        {
+            $this->columns[$column['name']] = (new Column($column['name'], ColumnType::from($column['type'])))->setNullable($column['nullable']);
+        }
+
+        return $this;
     }
 
-    public function loadUniqueColumns(): void
+    public function loadUniqueIndexes(): self
     {
         $keys = Schema::getIndexes($this->name);
 
@@ -76,35 +71,20 @@ class Table
             }
 
             foreach ($key['columns'] as $column) {
-                $this->uniques[] = $column;
+
+                if(!isset($this->columns[$column]))
+                {
+                    return;
+                }
+
+                $this->columns[$column]->setUnique(true);
             }
         }, $keys);
+
+        return $this;
     }
 
-    public function loadColumns(): void
-    {
-        $columns = Schema::getColumns($this->name);
-
-        $columns = array_filter($columns, function ($c) {
-
-            if(in_array($c['name'], self::COLUMNS_EXCLUDED)) {
-                return false;
-            }
-
-            return true;
-        });
-
-        $this->columns = array_map(function ($c) {
-            $column = new Column($c['name'], ColumnType::from($c['type']));
-
-            $column->setUnique(in_array($c['name'], $this->uniques));
-            $column->setNullable($c['nullable']);
-
-            return $column;
-        }, $columns);
-    }
-
-    public function loadRelationships(): void
+    public function loadRelationships(): self
     {
         $tables = array_filter(Schema::getTableListing(), fn (string $table) => ! in_array($table, self::TABLES_EXCLUDED));
 
@@ -117,31 +97,49 @@ class Table
                 return;
             }
 
-            $this->setHasManyRelationshiop($foreign_keys, $table_name);
+            $this->setHasManyRelationship($foreign_keys, $table_name);
         }, $tables);
+
+        return $this;
     }
 
     /**
-     * @param  array<array<string>>  $foreign_keys
+     * @param  array<array<string>|array<string>>>  $foreign_keys
      */
     private function setBelongsToRelationships(array $foreign_keys): void
     {
-        foreach ($foreign_keys as $table_name) {
-            $this->relationships[] = new Relationship($table_name['foreign_table'], RelationshipType::BelongsTo);
+        foreach ($foreign_keys as $foreign_key) {
+            foreach($foreign_key['columns'] as $column) {
+
+                if(!isset($this->columns[$column]))
+                {
+                    continue;
+                }
+
+                $this->columns[$column]->addRelationship(new Relationship($foreign_key['foreign_table'], RelationshipType::BelongsTo));
+            }
         }
     }
 
     /**
-     * @param  array<array<string>>  $foreign_keys
+     * @param  array<array<string>|array<string>>>  $foreign_keys
      */
-    private function setHasManyRelationshiop(array $foreign_keys, string $table_name): void
+    private function setHasManyRelationship(array $foreign_keys, string $table_name): void
     {
         foreach ($foreign_keys as $foreign_key) {
             if ($foreign_key['foreign_table'] != $this->name) {
                 continue;
             }
 
-            $this->relationships[] = new Relationship($table_name, RelationshipType::HasMany);
+            foreach($foreign_key['foreign_columns'] as $column) {
+
+                if(!isset($this->columns[$column]))
+                {
+                    continue;
+                }
+
+                $this->columns[$column]->addRelationship(new Relationship($table_name, RelationshipType::HasMany));
+            }
         }
     }
 }
