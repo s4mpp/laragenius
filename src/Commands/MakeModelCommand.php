@@ -1,50 +1,41 @@
 <?php
+
 namespace S4mpp\Laragenius\Commands;
 
-use workbench;
-use Illuminate\Support\Str;
-use S4mpp\Laragenius\Resource;
 use Illuminate\Console\Command;
-
-use function Laravel\Prompts\info;
-use function Laravel\Prompts\note;
-
-use Illuminate\Support\Facades\DB;
-use function Laravel\Prompts\confirm;
+use S4mpp\Laragenius\Schema\Table;
 use Illuminate\Support\Facades\Schema;
-use S4mpp\Laragenius\FileManipulation;
 use S4mpp\Laragenius\Generators\Model;
-use function Laravel\Prompts\multiselect;
-use function Orchestra\Testbench\workbench_path;
 
+/**
+ * @codeCoverageIgnore
+ */
 class MakeModelCommand extends Command
 {
-	protected $signature = 'make:lg-model {table}';
+    protected $signature = 'make:lg-model {table}';
 
-	protected $description = 'Generate a new model';
+    protected $description = 'Generate a new model';
 
-	public function handle()
+    public function handle(): void
     {
-		$table = $this->argument('table');
+        $generator = new Model(new Table($this->argument('table')));
 
-		$generator = new Model($table);
+        $filename = $generator->create();
 
-		$filename = $generator->create();
+        $this->info('File ['.$filename.'] created.');
 
-		$this->info('File ['.$filename.'] created.');
+        // dump($model_name);
 
-		// dump($model_name);
-
-		// dump(Schema::getIndexes('users'));
-		// dump(Schema::getForeignKeys('users'));
+        // dump(Schema::getIndexes('users'));
+        // dump(Schema::getForeignKeys('users'));
 
         // $fields = Schema::getColumns('users');
 
-		// foreach($fields as $field)
-		// {
-		// 	dump($field);
+        // foreach($fields as $field)
+        // {
+        // 	dump($field);
 
-		// 	die();
-		// }
+        // 	die();
+        // }
     }
 }

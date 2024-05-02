@@ -1,44 +1,46 @@
 <?php
+
 namespace S4mpp\Laragenius\Generators;
 
 use Illuminate\Support\Str;
-use S4mpp\Laragenius\FileManipulation;
+use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Contracts\GeneratorInterface;
 
 abstract class Generator implements GeneratorInterface
 {
-	protected string $studly_name;
+    protected string $studly_name;
 
-	protected string $folder;
-	
-	public function __construct(private string $table_name) {
-		$this->studly_name = Str::studly(Str::singular($table_name));
-	}
+    protected string $folder;
 
-	public function create(): string
-	{
-		$folder = $this->folder ?? null;
-		
-		return FileManipulation::putContentFile($this->getFileName(), $folder, $this->getContent());
-	}
+    public function __construct(private Table $table)
+    {
+        $this->studly_name = Str::studly(Str::singular($table->getName()));
+    }
 
-	protected function getStubVariables(): array
-	{
-		return [
-			'STUDLY_NAME' => $this->studly_name,
-			'NAMESPACE' => $this->getNamespace(),
-		];
-	}
-	
-	private function getContent(): ?string
-	{
-		$stub_file = $this->stub_file ?? null;
+    public function getTable(): Table
+    {
+        return $this->table;
+    }
 
-		if(!$stub_file)
-		{
-			return null;
-		}
+    public function create(): string
+    {
+        $folder = $this->folder ?? null;
 
-		return FileManipulation::getStubContents($stub_file, $this->getStubVariables());
-	}
+        $stub = $this->getContent();
+
+        $stub->fill($this->getStubVariables());
+
+        return $stub->put($this->getFileName(), $folder);
+    }
+
+    /**
+     * @return array<string>
+     */
+    protected function getStubVariables(): array
+    {
+        return [
+            'STUDLY_NAME' => $this->studly_name,
+            'NAMESPACE' => $this->getNamespace(),
+        ];
+    }
 }

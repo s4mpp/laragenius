@@ -1,0 +1,19 @@
+providers:
+
+migrations:
+  - workbench/database/migrations
+
+seeders:
+
+workbench:
+  start: '/'
+  install: true
+  discovers:
+    web: true
+    api: false
+    commands: false
+    components: true
+    views: true
+  build: []
+  assets: []
+  sync: []
