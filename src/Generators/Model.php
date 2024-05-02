@@ -10,11 +10,6 @@ final class Model extends Generator
 {
     protected string $folder = 'app/Models';
 
-    /**
-     * @var array<string>
-     */
-    private array $uses = [];
-
     public function getNamespace(): string
     {
         return 'App\Models';
@@ -35,7 +30,6 @@ final class Model extends Generator
 
         $stub->fill([
             'RELATIONSHIPS' => $this->getRelationships(),
-            'USES' => $this->getUses(),
         ]);
 
         return $stub;
@@ -53,34 +47,25 @@ final class Model extends Generator
         {
             foreach ($column->getRelationships() as $relationship) {
                 $table_name = $relationship->getTableName();
+
+                $model_name = Table::toModelName($table_name);
     
                 $type = $relationship->getType();
-    
-                $this->uses[] = 'App\Models\\'.Table::toModelName($table_name);
-                $this->uses[] = $type->classRelationLaravel();
+
+                $this->addUse('App\Models\\'.$model_name);
+                $this->addUse($type->classRelationLaravel());                
     
                 $stub_relationship = new Stub('model/'.$type->stub());
     
                 $stub_relationship->fill([
                     'NAME' => $type->nameMethod($table_name),
-                    'MODEL' => Table::toModelName($table_name),
+                    'MODEL' => $model_name,
                 ]);
     
                 $relationships .= $stub_relationship;
             }
         }
 
-        return $relationships;
-    }
-
-    private function getUses(): string
-    {
-        $uses = '';
-
-        foreach (array_unique($this->uses) as $use) {
-            $uses .= (new Stub('use'))->fill(['CLASS_PATH' => $use]);
-        }
-
-        return $uses;
+        return trim($relationships);
     }
 }

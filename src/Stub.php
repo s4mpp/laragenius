@@ -35,7 +35,7 @@ final class Stub
     public function fill(array $stub_variables = []): self
     {
         foreach ($stub_variables as $search => $replace) {
-            $this->content = str_replace('{{ '.$search.' }}', trim($replace), $this->content);
+            $this->content = str_replace('{{ '.$search.' }}', $replace, $this->content);
         }
 
         return $this;

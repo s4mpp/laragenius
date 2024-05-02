@@ -1,0 +1,2 @@
+
+			->for({{ MODEL }}::factory()->create(), '{{ NAME }}')

@@ -4,11 +4,11 @@ namespace {{ NAMESPACE }};
 
 use Illuminate\Database\Seeder;
 use App\Models\{{ STUDLY_NAME }};
-
+{{ USES }}
 class {{ STUDLY_NAME }}Seeder extends Seeder
 {
     public function run()
     {
-        {{ STUDLY_NAME }}::factory()->create();
+        {{ STUDLY_NAME }}::factory(){{ FOR }}->create();
     }
 }
