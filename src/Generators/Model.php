@@ -21,12 +21,12 @@ final class Model extends Generator
     }
 
     public function getContent(): Stub
-    {
+    {        
         $table = $this->getTable();
 
         $table->loadColumns()->loadRelationships();
 
-        $stub = new Stub('stubs/model/model');
+        $stub = new Stub(Stub::getFolder('model/model'));
 
         $stub->fill([
             'CASTS' => $this->getCasts(),
@@ -44,7 +44,7 @@ final class Model extends Generator
             return null;
         }
 
-        return (new Stub('stubs/model/casts'))->fill([
+        return (new Stub(Stub::getFolder('model/casts')))->fill([
             'CASTS' => trim($casts),
         ]);
     }
@@ -60,7 +60,7 @@ final class Model extends Generator
                 continue;
             }
 
-            $casts .= (new Stub('stubs/model/cast'))->fill([
+            $casts .= (new Stub(Stub::getFolder('model/cast')))->fill([
                 'NAME' => $column->getName(),
                 'CASTTYPE' => $cast_type,
             ]);
@@ -93,7 +93,7 @@ final class Model extends Generator
         $this->addUse('App\Models\\'.$model_name);
         $this->addUse($type->classRelationLaravel());
 
-        return (new Stub('stubs/model/'.$type->stub()))->fill([
+        return (new Stub(Stub::getFolder('model/'.$type->stub())))->fill([
             'NAME' => $type->nameMethod($table_name),
             'MODEL' => $model_name,
         ]);

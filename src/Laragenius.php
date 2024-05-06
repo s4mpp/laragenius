@@ -13,9 +13,16 @@ final class Laragenius
      */
     private static array $generators = [];
 
+    private string $destination_path;
+
     public static function addGenerator(string $generator): void
     {
         self::$generators[] = $generator;
+    }
+
+    public static function setDestinationPath(string $path): void
+    {
+        self::$destination_path = $path;
     }
 
     /**
@@ -31,5 +38,15 @@ final class Laragenius
         self::$generators = [];
 
         return;
+    }
+
+    public static function getDestinationPath(): string
+    {
+        if(isset(self::$destination_path))
+        {
+            return self::$destination_path;
+        }
+
+        return base_path();
     }
 }

@@ -3,6 +3,7 @@
 namespace S4mpp\Laragenius;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Config;
 
 final class Stub
 {
@@ -14,6 +15,12 @@ final class Stub
 
         $this->content = $file;
     }
+
+    public static function getFolder(string $folder): string
+    {
+        return __DIR__.'/../stubs/'.$folder;
+    }
+
 
     public function __toString()
     {
@@ -38,7 +45,9 @@ final class Stub
 
         $path = implode('/', array_filter([$destination, $filename.'.php']));
 
-        $filesystem->put(base_path($path), $this->content);
+        $destination_path = Laragenius::getDestinationPath();
+
+        $filesystem->put($destination_path.'/'.$path, $this->content);
 
         return $path;
     }
