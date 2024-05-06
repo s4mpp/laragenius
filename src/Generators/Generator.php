@@ -64,7 +64,7 @@ abstract class Generator implements GeneratorInterface
         $uses = '';
 
         foreach (array_unique($this->uses) as $use) {
-            $uses .= (new Stub('use'))->fill(['CLASS_PATH' => $use]);
+            $uses .= (new Stub('stubs/use'))->fill(['CLASS_PATH' => $use]);
         }
 
         return $uses;

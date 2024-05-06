@@ -7,8 +7,8 @@ use S4mpp\Laragenius\Contracts\FakerInterface;
 
 class Text implements FakerInterface
 {
-    public function getFaker(string $field_name): string
+    public function getFaker(string $field_name): Stub
     {
-        return new Stub('factory/fakers/text');
+        return new Stub('stubs/factory/fakers/text');
     }
 }

@@ -22,14 +22,17 @@ class Table
 
     public function __construct(private string $name)
     {
+        if (! Schema::hasTable($this->name)) {
+            throw new \Exception('Table '.$this->name.' not found');
+        }
     }
 
-    public static function toModelName(string $name)
+    public static function toModelName(string $name): string
     {
         return Str::studly(Str::singular($name));
     }
 
-    public function getModelName()
+    public function getModelName(): string
     {
         return self::toModelName($this->name);
     }
@@ -45,9 +48,7 @@ class Table
     public function getColumns(bool $filter = true): array
     {
         if ($filter) {
-            return array_filter($this->columns, function ($column) {
-                return ! (in_array($column->getName(), ['id', 'created_at', 'updated_at', 'deleted_at']));
-            });
+            return array_filter($this->columns, fn ($column) => ! (in_array($column->getName(), ['id', 'created_at', 'updated_at', 'deleted_at'])));
         }
 
         return $this->columns;
@@ -75,7 +76,7 @@ class Table
 
             foreach ($key['columns'] as $column) {
                 if (! isset($this->columns[$column])) {
-                    return;
+                    continue;
                 }
 
                 $this->columns[$column]->setUnique(true);
@@ -105,7 +106,7 @@ class Table
     }
 
     /**
-     * @param  array<array<string>|array<string>>>  $foreign_keys
+     * @param  array<array<array<string>|string>>  $foreign_keys
      */
     private function setBelongsToRelationships(array $foreign_keys): void
     {
@@ -121,15 +122,11 @@ class Table
     }
 
     /**
-     * @param  array<array<string>|array<string>>>  $foreign_keys
+     * @param  array<array<array<string>|string>>  $foreign_keys
      */
     private function setHasManyRelationship(array $foreign_keys, string $table_name): void
     {
         foreach ($foreign_keys as $foreign_key) {
-            if ($foreign_key['foreign_table'] != $this->name) {
-                continue;
-            }
-
             foreach ($foreign_key['foreign_columns'] as $column) {
                 if (! isset($this->columns[$column])) {
                     continue;

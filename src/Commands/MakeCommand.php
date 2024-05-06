@@ -10,6 +10,7 @@ use S4mpp\Laragenius\Generators\Seeder;
 use S4mpp\Laragenius\Generators\Factory;
 
 use function Laravel\Prompts\multiselect;
+
 use S4mpp\Laragenius\Generators\Generator;
 
 /**
@@ -23,34 +24,31 @@ class MakeCommand extends Command
 
     public function handle(): void
     {
-		$table = $this->argument('table'); 
+        $table = $this->argument('table');
 
-		$resources = multiselect(
-			label: 'Select the resources you want to generate',
-			options: array_merge([
-				Model::class,
-				Factory::class,
-				Seeder::class
-			], Laragenius::getGenerators()),
-			required: true,
-			validate: function($value) {
-				if(is_subclass_of($value, Generator::class))
-				{
-					return $value.' is not a generator';
-				}
+        $resources = multiselect(
+            label: 'Select the resources you want to generate',
+            options: array_merge([
+                Model::class,
+                Factory::class,
+                Seeder::class,
+            ], Laragenius::getGenerators()),
+            required: true,
+            validate: function ($value) {
+                if (is_subclass_of($value, Generator::class)) {
+                    return $value.' is not a generator';
+                }
 
-				return null;
-			}
-		);
+                return null;
+            }
+        );
 
-		foreach($resources as $resource)
-		{
-			$generator = new $resource(new Table($table));
-	
-			$filename = $generator->create();
-	
-			$this->info('File ['.$filename.'] created.');
-		}
+        foreach ($resources as $resource) {
+            $generator = new $resource(new Table($table));
 
+            $filename = $generator->create();
+
+            $this->info('File ['.$filename.'] created.');
+        }
     }
 }

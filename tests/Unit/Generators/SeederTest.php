@@ -2,39 +2,44 @@
 
 namespace S4mpp\Laragenius\Tests\Unit\Generators;
 
-use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Schema\Table;
-use S4mpp\Laragenius\Schema\Column;
 use S4mpp\Laragenius\Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
-use S4mpp\Laragenius\Enums\ColumnType;
-use S4mpp\Laragenius\Generators\Model;
 use S4mpp\Laragenius\Generators\Seeder;
 
 class SeederTest extends TestCase
 {
-	protected function setUp(): void
-	{
-		parent::setUp();
+    public function test_get_filename(): void
+    {
+        Schema::create('tbl-example', fn ($table) => $table->increments('id'));
 
-		Schema::create('table-example', function($table) {
-			$table->string('field-example');
-		});
-	}
+        $seeder = new Seeder(new Table('tbl-example'));
 
-	public function test_get_filename()
-	{
-		$seeder = new Seeder(new Table('table-example'));
+        $this->assertEquals('Database\Seeders', $seeder->getNamespace());
+        $this->assertEquals('TblExampleSeeder', $seeder->getFileName());
+    }
 
-		$this->assertEquals('Database\Seeders', $seeder->getNamespace());
-		$this->assertEquals('TableExampleSeeder', $seeder->getFileName());
-	}
+    public function test_get_content(): void
+    {
+        Schema::create('mains', function ($table): void {
+            $table->increments('id');
+        });
 
-	public function test_get_content()
-	{
-		$seeder = new Seeder(new Table('table-example'));
+        Schema::create('childs', function ($table): void {
+            $table->foreignId('main_id')->references('id')->on('mains');
+            $table->string('email');
+        });
 
-		$this->assertSame('seeder/seeder', $seeder->getContent()->getNameFile());
-	}
+        Schema::create('sub_childs', function ($table): void {
+            $table->string('child_email');
+            $table->foreign('child_email')->references('email')->on('childs');
+        });
 
+        $seeder = new Seeder(new Table('childs'));
+
+        $content = (string) $seeder->getContent();
+
+        $this->assertEquals('stubs/seeder/seeder', $seeder->getContent()->getNameFile());
+        $this->assertStringContainsString("for(Main::factory()->create(), 'main')", $content);
+    }
 }

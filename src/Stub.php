@@ -12,10 +12,6 @@ final class Stub
     {
         $file = file_get_contents($file.'.stub', true);
 
-        if (! $file) {
-            return;
-        }
-
         $this->content = $file;
     }
 

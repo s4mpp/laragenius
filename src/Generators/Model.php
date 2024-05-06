@@ -36,7 +36,7 @@ final class Model extends Generator
         return $stub;
     }
 
-    private function getCasts(): ?string
+    private function getCasts(): ?Stub
     {
         $casts = $this->getCast();
 
@@ -49,7 +49,7 @@ final class Model extends Generator
         ]);
     }
 
-    private function getCast()
+    private function getCast(): string
     {
         $casts = '';
 
@@ -73,7 +73,7 @@ final class Model extends Generator
     {
         $relationships = '';
 
-        foreach ($this->getTable()->getColumns() as $column) {
+        foreach ($this->getTable()->getColumns(filter: false) as $column) {
             foreach ($column->getRelationships() as $relationship) {
                 $relationships .= $this->getRelationship($relationship);
             }

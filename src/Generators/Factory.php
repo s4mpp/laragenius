@@ -22,6 +22,10 @@ final class Factory extends Generator
 
     public function getContent(): Stub
     {
+        $table = $this->getTable();
+
+        $table->loadColumns()->loadUniqueIndexes()->loadRelationships();
+
         $stub = new Stub('stubs/factory/factory');
 
         $stub->fill([
@@ -46,7 +50,7 @@ final class Factory extends Generator
         return trim($definition);
     }
 
-    private function getUnique(Column $column): ?string
+    private function getUnique(Column $column): ?Stub
     {
         if ($column->isUnique()) {
             return new Stub('stubs/factory/fakers/unique');
@@ -57,7 +61,7 @@ final class Factory extends Generator
 
     private function getFakerDefinition(Column $column): string
     {
-        /** @var FakerInterface */
+        /** @var FakerInterface|null */
         $field_class = $column->getType()?->class();
 
         if ($field_class) {
@@ -72,10 +76,6 @@ final class Factory extends Generator
      */
     private function getColumns(): array
     {
-        $table = $this->getTable();
-
-        $table->loadColumns()->loadUniqueIndexes()->loadRelationships();
-
-        return array_filter($table->getColumns(), fn ($column) => ! (! empty($column->getRelationships())));
+        return array_filter($this->getTable()->getColumns(), fn ($column) => ! (! empty($column->getRelationships())));
     }
 }

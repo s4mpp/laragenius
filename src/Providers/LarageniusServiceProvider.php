@@ -4,9 +4,6 @@ namespace S4mpp\Laragenius\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use S4mpp\Laragenius\Commands\MakeCommand;
-use S4mpp\Laragenius\Commands\MakeModelCommand;
-use S4mpp\Laragenius\Commands\MakeSeederCommand;
-use S4mpp\Laragenius\Commands\MakeFactoryCommand;
 
 /**
  * @codeCoverageIgnore
@@ -17,7 +14,7 @@ class LarageniusServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                MakeCommand::class
+                MakeCommand::class,
             ]);
         }
     }

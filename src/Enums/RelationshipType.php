@@ -14,7 +14,7 @@ enum RelationshipType
     public function nameMethod(string $table_name): string
     {
         return match ($this) {
-            self::HasMany => $table_name,
+            self::HasMany => Str::camel($table_name),
             self::BelongsTo => Str::singular($table_name),
         };
     }

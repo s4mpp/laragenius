@@ -4,6 +4,7 @@ namespace S4mpp\Laragenius\Generators;
 
 use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Schema\Table;
+use S4mpp\Laragenius\Schema\Relationship;
 use S4mpp\Laragenius\Enums\RelationshipType;
 
 final class Seeder extends Generator
@@ -22,48 +23,47 @@ final class Seeder extends Generator
 
     public function getContent(): Stub
     {
+        $table = $this->getTable();
+
+        $table->loadColumns()->loadRelationships();
+
         $stub = new Stub('stubs/seeder/seeder');
 
         $stub->fill([
-            'FOR' => $this->getFor(),
+            'FOR' => $this->getFors(),
         ]);
 
         return $stub;
     }
 
-    private function getFor(): string
+    private function getFors(): string
     {
         $for = '';
 
-        $table = $this->getTable();
-
-        $table->loadColumns()->loadRelationships();
-
-        foreach ($table->getColumns() as $column) {
+        foreach ($this->getTable()->getColumns() as $column) {
             foreach ($column->getRelationships() as $relationship) {
-                $type = $relationship->getType();
-
-                if ($type != RelationshipType::BelongsTo) {
+                if ($relationship->getType() != RelationshipType::BelongsTo) {
                     continue;
                 }
 
-                $table_name = $relationship->getTableName();
-
-                $model_name = Table::toModelName($table_name);
-
-                $this->addUse('App\Models\\'.$model_name);
-
-                $stub_for = new Stub('stubs/seeder/for');
-
-                $stub_for->fill([
-                    'NAME' => $type->nameMethod($table_name),
-                    'MODEL' => $model_name,
-                ]);
-
-                $for .= $stub_for;
+                $for .= $this->getFor($relationship);
             }
         }
 
         return $for;
+    }
+
+    private function getFor(Relationship $relationship): string
+    {
+        $table_name = $relationship->getTableName();
+
+        $model_name = Table::toModelName($table_name);
+
+        $this->addUse('App\Models\\'.$model_name);
+
+        return (new Stub('stubs/seeder/for'))->fill([
+            'NAME' => $relationship->getType()->nameMethod($table_name),
+            'MODEL' => $model_name,
+        ]);
     }
 }

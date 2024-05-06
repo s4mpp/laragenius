@@ -12,6 +12,8 @@ use S4mpp\Laragenius\Fields\Datetime;
 
 enum ColumnType: string
 {
+    //TODO Type boolean
+
     case Integer = 'integer';
     case Decimal = 'numeric';
     case Varchar = 'varchar';
