@@ -37,11 +37,11 @@ class TableTest extends TestCase
 
     public function test_load_columns(): void
     {
-        Schema::create('table-example', function ($table): void {
+        Schema::create('tbl_example_1', function ($table): void {
             $table->string('name')->nullable();
         });
 
-        $table = new Table('table-example');
+        $table = new Table('tbl_example_1');
 
         $table->loadColumns();
 
@@ -98,11 +98,11 @@ class TableTest extends TestCase
 
     public function test_load_relationship_belongs_to(): void
     {
-        Schema::create('table_example_relationships', function ($table): void {
+        Schema::create('tbl_belongs_to_relationships', function ($table): void {
             $table->foreignId('user_id')->references('id')->on('users');
         });
 
-        $table = new Table('table_example_relationships');
+        $table = new Table('tbl_belongs_to_relationships');
 
         $table->loadColumns()->loadRelationships();
 
@@ -116,15 +116,15 @@ class TableTest extends TestCase
 
     public function test_load_relationship_has_many(): void
     {
-        Schema::create('table_example_relationships', function ($table): void {
+        Schema::create('tbl_has_many_relationships', function ($table): void {
             $table->increments('id');
         });
 
-        Schema::create('table_example_childs', function ($table): void {
-            $table->foreignId('table_example_id')->references('id')->on('table_example_relationships');
+        Schema::create('tbl_has_many_example_childs', function ($table): void {
+            $table->foreignId('table_example_id')->references('id')->on('tbl_has_many_relationships');
         });
 
-        $table = new Table('table_example_relationships');
+        $table = new Table('tbl_has_many_relationships');
 
         $table->loadColumns()->loadRelationships();
 
@@ -132,22 +132,22 @@ class TableTest extends TestCase
 
         $relationship = $columns['id']->getRelationships()[0];
 
-        $this->assertEquals('table_example_childs', $relationship->getTableName());
+        $this->assertEquals('tbl_has_many_example_childs', $relationship->getTableName());
         $this->assertEquals(RelationshipType::HasMany, $relationship->getType());
     }
 
     public function test_load_relationships_and_uniques_without_columns(): void
     {
-        Schema::create('table_example_relationships', function ($table): void {
+        Schema::create('table_relationships', function ($table): void {
             $table->foreignId('user_id')->references('id')->on('users');
             $table->string('email')->unique();
         });
 
         Schema::create('table_example_childs', function ($table): void {
-            $table->foreignId('table_example_id')->references('id')->on('table_example_relationships');
+            $table->foreignId('table_example_id')->references('id')->on('table_relationships');
         });
 
-        $table = new Table('table_example_relationships');
+        $table = new Table('table_relationships');
 
         $table->loadUniqueIndexes();
         $table->loadRelationships();

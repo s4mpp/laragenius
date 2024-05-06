@@ -17,13 +17,12 @@ class GetFakerTest extends TestCase
     public static function fieldsWithFakerProvider()
     {
         return [
-            'integer' => [Integer::class, 'stubs/factory/fakers/random-number'],
-            'decimal' => [Decimal::class, 'stubs/factory/fakers/decimal'],
-            'varchar' => [Varchar::class, 'stubs/factory/fakers/word'],
-            'datetime' => [Datetime::class, 'stubs/factory/fakers/date'],
-            'date' => [Date::class, 'stubs/factory/fakers/date'],
-            'tinyint' => [TinyInt::class, 'stubs/factory/fakers/random-digit'],
-            'text' => [Text::class, 'stubs/factory/fakers/text'],
+            'integer' => [Integer::class, 'randomNumber()'],
+            'decimal' => [Decimal::class, 'randomFloat()'],
+            'varchar' => [Varchar::class, 'word()'],
+            'datetime' => [Datetime::class, "date('Y-m-d H:i:s')"],
+            'date' => [Date::class, "fake()->date('Y-m-d')"],
+            'text' => [Text::class, 'text()'],
         ];
     }
 
@@ -36,6 +35,6 @@ class GetFakerTest extends TestCase
 
         $faker = $field->getFaker('id');
         $this->assertInstanceOf(Stub::class, $faker);
-        $this->assertEquals($file_name, $faker->getNameFile());
+        $this->assertStringContainsString($file_name, (string)$faker);
     }
 }

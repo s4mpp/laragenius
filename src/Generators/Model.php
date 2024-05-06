@@ -54,7 +54,7 @@ final class Model extends Generator
         $casts = '';
 
         foreach ($this->getTable()->getColumns() as $column) {
-            $cast_type = $column->getType()->cast();
+            $cast_type = $column->getType()?->cast();
 
             if (! $cast_type) {
                 continue;

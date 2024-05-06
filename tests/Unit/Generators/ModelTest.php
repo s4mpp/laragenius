@@ -38,7 +38,7 @@ class ModelTest extends TestCase
             $table->foreignId('user_id')->references('id')->on('users');
         });
 
-        Schema::create('childs', function ($table): void {
+        Schema::create('example-childs', function ($table): void {
             $table->foreignId('example_id')->references('id')->on('examples');
         });
 
@@ -46,18 +46,17 @@ class ModelTest extends TestCase
 
         $content = (string) $model->getContent();
 
-        $this->assertEquals('stubs/model/model', $model->getContent()->getNameFile());
         $this->assertStringContainsString('user(): BelongsTo', $content);
-        $this->assertStringContainsString('childs(): HasMany', $content);
+        $this->assertStringContainsString('exampleChilds(): HasMany', $content);
     }
 
     public function test_get_content_with_no_casts(): void
     {
-        Schema::create('example', function ($table): void {
+        Schema::create('tbl_example_4', function ($table): void {
             $table->increments('id');
         });
 
-        $model = new Model(new Table('example'));
+        $model = new Model(new Table('tbl_example_4'));
 
         $this->assertStringNotContainsString('protected $casts', (string) $model->getContent());
     }

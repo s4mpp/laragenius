@@ -21,7 +21,7 @@ beStrictAboutOutputDuringTests="true"
       <directory suffix=".php">src</directory>
     </include>
   </source>
-  <coverage disableCodeCoverageIgnore="false">
+  <coverage disableCodeCoverageIgnore="true">
     <report >
       <html 
         outputDirectory="coverage-result" 

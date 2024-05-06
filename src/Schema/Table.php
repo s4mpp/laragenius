@@ -54,6 +54,7 @@ class Table
         return $this->columns;
     }
 
+    // TODO call in constructor
     public function loadColumns(): self
     {
         $columns = Schema::getColumns($this->name);
@@ -75,11 +76,7 @@ class Table
             }
 
             foreach ($key['columns'] as $column) {
-                if (! isset($this->columns[$column])) {
-                    continue;
-                }
-
-                $this->columns[$column]->setUnique(true);
+                $this->getColumn($column)?->setUnique(true);
             }
         }, $keys);
 
@@ -112,11 +109,7 @@ class Table
     {
         foreach ($foreign_keys as $foreign_key) {
             foreach ($foreign_key['columns'] as $column) {
-                if (! isset($this->columns[$column])) {
-                    continue;
-                }
-
-                $this->columns[$column]->addRelationship(new Relationship($foreign_key['foreign_table'], RelationshipType::BelongsTo));
+                $this->getColumn($column)?->addRelationship(new Relationship($foreign_key['foreign_table'], RelationshipType::BelongsTo));
             }
         }
     }
@@ -128,12 +121,21 @@ class Table
     {
         foreach ($foreign_keys as $foreign_key) {
             foreach ($foreign_key['foreign_columns'] as $column) {
-                if (! isset($this->columns[$column])) {
-                    continue;
-                }
 
-                $this->columns[$column]->addRelationship(new Relationship($table_name, RelationshipType::HasMany));
+                if($foreign_key['foreign_table'] != $this->name) {continue;}
+                
+
+                $this->getColumn($column)?->addRelationship(new Relationship($table_name, RelationshipType::HasMany));
             }
         }
+    }
+
+    private function getColumn(string $column):?Column
+    {
+        if (! isset($this->columns[$column])) {
+            return null;
+        }
+
+        return $this->columns[$column];
     }
 }

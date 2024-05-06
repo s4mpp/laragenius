@@ -2,6 +2,10 @@
 
 namespace S4mpp\Laragenius;
 
+use S4mpp\Laragenius\Generators\Model;
+use S4mpp\Laragenius\Generators\Seeder;
+use S4mpp\Laragenius\Generators\Factory;
+
 final class Laragenius
 {
     /**
@@ -19,6 +23,13 @@ final class Laragenius
      */
     public static function getGenerators(): array
     {
-        return self::$generators;
+        return array_merge([Model::class, Factory::class, Seeder::class], self::$generators);
+    }
+
+    public static function flushGenerators(): void
+    {
+        self::$generators = [];
+
+        return;
     }
 }

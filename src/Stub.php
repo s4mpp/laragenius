@@ -20,11 +20,6 @@ final class Stub
         return $this->content;
     }
 
-    public function getNameFile(): string
-    {
-        return $this->file;
-    }
-
     /**
      * @param  array<string>  $stub_variables
      */

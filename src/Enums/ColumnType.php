@@ -19,7 +19,6 @@ enum ColumnType: string
     case Varchar = 'varchar';
     case Datetime = 'datetime';
     case Date = 'date';
-    case TinyInt = 'tinyint';
     case Text = 'text';
 
     public function class(): string
@@ -30,7 +29,6 @@ enum ColumnType: string
             self::Varchar => Varchar::class,
             self::Datetime => Datetime::class,
             self::Date => Date::class,
-            self::TinyInt => TinyInt::class,
             self::Text => Text::class
         };
     }

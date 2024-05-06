@@ -25,21 +25,20 @@ class SeederTest extends TestCase
             $table->increments('id');
         });
 
-        Schema::create('childs', function ($table): void {
+        Schema::create('seeder-childs', function ($table): void {
             $table->foreignId('main_id')->references('id')->on('mains');
             $table->string('email');
         });
 
         Schema::create('sub_childs', function ($table): void {
             $table->string('child_email');
-            $table->foreign('child_email')->references('email')->on('childs');
+            $table->foreign('child_email')->references('email')->on('seeder-childs');
         });
 
-        $seeder = new Seeder(new Table('childs'));
+        $seeder = new Seeder(new Table('seeder-childs'));
 
         $content = (string) $seeder->getContent();
 
-        $this->assertEquals('stubs/seeder/seeder', $seeder->getContent()->getNameFile());
         $this->assertStringContainsString("for(Main::factory()->create(), 'main')", $content);
     }
 }

@@ -1,5 +1,6 @@
 providers:
   - Workbench\App\Providers\WorkbenchServiceProvider
+  - S4mpp\Laragenius\Providers\LarageniusServiceProvider
 
 migrations:
   - workbench/database/migrations

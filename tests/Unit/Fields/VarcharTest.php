@@ -10,11 +10,11 @@ class VarcharTest extends TestCase
     public static function nameFieldVarchar()
     {
         return [
-            'email' => ['email', 'stubs/factory/fakers/email'],
-            'name' => ['name', 'stubs/factory/fakers/name'],
-            'password' => ['password', 'stubs/factory/fakers/password'],
-            'token' => ['token', 'stubs/factory/fakers/token'],
-            'phone' => ['phone', 'stubs/factory/fakers/phone'],
+            'email' => ['email', 'email()'],
+            'name' => ['name', 'firstName()'],
+            'password' => ['password', 'password'],
+            'token' => ['token', 'sha1()'],
+            'phone' => ['phone', 'phoneNumber()'],
         ];
     }
 
@@ -27,6 +27,6 @@ class VarcharTest extends TestCase
 
         $faker = $field->getFaker($name_field);
 
-        $this->assertEquals($file_name, $faker->getNameFile());
+        $this->assertStringContainsString($file_name, (string)$faker);
     }
 }

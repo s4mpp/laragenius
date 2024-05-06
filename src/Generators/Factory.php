@@ -4,6 +4,7 @@ namespace S4mpp\Laragenius\Generators;
 
 use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Schema\Column;
+use S4mpp\Laragenius\Enums\RelationshipType;
 use S4mpp\Laragenius\Contracts\FakerInterface;
 
 final class Factory extends Generator
@@ -68,7 +69,13 @@ final class Factory extends Generator
             return (new $field_class())->getFaker($column->getName());
         }
 
-        return 'null';
+        if($column->isNullable())
+        {
+            return 'null';
+        }
+
+        return new Stub('stubs/factory/fakers/word');
+
     }
 
     /**
@@ -76,6 +83,16 @@ final class Factory extends Generator
      */
     private function getColumns(): array
     {
-        return array_filter($this->getTable()->getColumns(), fn ($column) => ! (! empty($column->getRelationships())));
+        return array_filter($this->getTable()->getColumns(), function($column) {
+            $relationships = array_filter($column->getRelationships(), fn($relationship) => $relationship->getType() == RelationshipType::BelongsTo);
+
+            if(!empty($relationships))
+            {
+                return false;
+            }
+
+            return true;
+
+        });
     }
 }

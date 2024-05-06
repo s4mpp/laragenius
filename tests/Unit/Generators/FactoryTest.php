@@ -21,9 +21,9 @@ class FactoryTest extends TestCase
 
     public function test_get_folder(): void
     {
-        Schema::create('table-example', fn ($table) => $table->increments('id'));
+        Schema::create('tbl_example_6', fn ($table) => $table->increments('id'));
 
-        $factory = new Factory(new Table('table-example'));
+        $factory = new Factory(new Table('tbl_example_6'));
 
         $this->assertEquals('database/factories', $factory->getFolder());
     }
@@ -47,6 +47,6 @@ class FactoryTest extends TestCase
 
         $factory = new Factory(new Table('example'));
 
-        $this->assertEquals('stubs/factory/factory', $factory->getContent()->getNameFile());
+        $this->assertStringContainsString('Factory extends Factory', $factory->getContent());
     }
 }
