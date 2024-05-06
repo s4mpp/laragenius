@@ -26,7 +26,9 @@ class Varchar implements FakerInterface
             return new Stub('factory/fakers/token');
         }
 
-        //TODO phone
+        if (Str::contains($field_name, 'phone')) {
+            return new Stub('factory/fakers/phone');
+        }
 
         return new Stub('factory/fakers/word');
     }

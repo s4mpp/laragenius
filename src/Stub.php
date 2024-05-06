@@ -10,7 +10,7 @@ final class Stub
 
     public function __construct(private string $file)
     {
-        $file = file_get_contents('stubs/'.$file.'.stub', true);
+        $file = file_get_contents($file.'.stub', true);
 
         if (! $file) {
             return;

@@ -3,7 +3,6 @@
 namespace S4mpp\Laragenius\Schema;
 
 use S4mpp\Laragenius\Enums\ColumnType;
-use S4mpp\Laragenius\Schema\Relationship;
 
 class Column
 {
@@ -11,15 +10,14 @@ class Column
 
     private bool $unique = false;
 
-
     /** @var array<Relationship> */
     private array $relationships = [];
 
-    public function __construct(private string $name, private ColumnType $type)
+    public function __construct(private string $name, private ?ColumnType $type = null)
     {
     }
 
-    public function getType(): ColumnType
+    public function getType(): ?ColumnType
     {
         return $this->type;
     }
@@ -51,18 +49,18 @@ class Column
     {
         $this->relationships[] = $relationship;
     }
-    
+
     public function setNullable(bool $nullable): self
     {
         $this->nullable = $nullable;
 
         return $this;
     }
-    
+
     public function setUnique(bool $is_unique): self
     {
         $this->unique = $is_unique;
-        
+
         return $this;
     }
 }

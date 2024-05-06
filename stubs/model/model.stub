@@ -9,7 +9,7 @@ class {{ STUDLY_NAME }} extends Model
 {
     use HasFactory;
 
-    protected $casts = [];
+    {{ CASTS }}
 
     {{ RELATIONSHIPS }}
 }

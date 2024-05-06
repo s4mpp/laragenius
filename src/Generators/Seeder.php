@@ -2,9 +2,9 @@
 
 namespace S4mpp\Laragenius\Generators;
 
-use S4mpp\Laragenius\Enums\RelationshipType;
 use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Schema\Table;
+use S4mpp\Laragenius\Enums\RelationshipType;
 
 final class Seeder extends Generator
 {
@@ -22,10 +22,10 @@ final class Seeder extends Generator
 
     public function getContent(): Stub
     {
-        $stub = new Stub('seeder/seeder');
+        $stub = new Stub('stubs/seeder/seeder');
 
         $stub->fill([
-            'FOR' => $this->getFor()
+            'FOR' => $this->getFor(),
         ]);
 
         return $stub;
@@ -39,14 +39,11 @@ final class Seeder extends Generator
 
         $table->loadColumns()->loadRelationships();
 
-        foreach($table->getColumns() as $column)
-        {
+        foreach ($table->getColumns() as $column) {
             foreach ($column->getRelationships() as $relationship) {
-
                 $type = $relationship->getType();
 
-                if($type != RelationshipType::BelongsTo)
-                {
+                if ($type != RelationshipType::BelongsTo) {
                     continue;
                 }
 
@@ -56,7 +53,7 @@ final class Seeder extends Generator
 
                 $this->addUse('App\Models\\'.$model_name);
 
-                $stub_for = new Stub('seeder/for');
+                $stub_for = new Stub('stubs/seeder/for');
 
                 $stub_for->fill([
                     'NAME' => $type->nameMethod($table_name),

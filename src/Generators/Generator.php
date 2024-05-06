@@ -3,13 +3,14 @@
 namespace S4mpp\Laragenius\Generators;
 
 use S4mpp\Laragenius\Stub;
-use Illuminate\Support\Str;
 use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Contracts\GeneratorInterface;
 
 abstract class Generator implements GeneratorInterface
 {
     protected string $folder;
+
+    // protected string $stub_file;
 
     /**
      * @var array<string>
@@ -18,6 +19,11 @@ abstract class Generator implements GeneratorInterface
 
     public function __construct(private Table $table)
     {
+    }
+
+    public function getFolder(): ?string
+    {
+        return $this->folder ?? null;
     }
 
     public function getTable(): Table
@@ -32,7 +38,7 @@ abstract class Generator implements GeneratorInterface
 
     public function create(): string
     {
-        $folder = $this->folder ?? null;
+        $folder = $this->getFolder();
 
         $stub = $this->getContent();
 

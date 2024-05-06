@@ -9,6 +9,6 @@ class Integer implements FakerInterface
 {
     public function getFaker(string $field_name): string
     {
-        return new Stub('factory/fakers/random-digit');
+        return new Stub('factory/fakers/random-number');
     }
 }

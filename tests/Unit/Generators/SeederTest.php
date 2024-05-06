@@ -34,7 +34,7 @@ class SeederTest extends TestCase
 	{
 		$seeder = new Seeder(new Table('table-example'));
 
-		$this->assertSame('seeder', $seeder->getContent()->getNameFile());
+		$this->assertSame('seeder/seeder', $seeder->getContent()->getNameFile());
 	}
 
 }

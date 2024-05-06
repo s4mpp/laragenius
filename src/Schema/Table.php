@@ -10,7 +10,7 @@ use S4mpp\Laragenius\Enums\RelationshipType;
 class Table
 {
     /** @var array<Column> */
-    private array $columns;
+    private array $columns = [];
 
     private const TABLES_EXCLUDED = [
         'failed_jobs',
@@ -19,8 +19,6 @@ class Table
         'model_has_permissions', 'model_has_roles', 'role_has_permissions', 'roles',
         'telescope_entries', 'telescope_entries_tags', 'telescope_monitoring',
     ];
-
-    
 
     public function __construct(private string $name)
     {
@@ -44,8 +42,14 @@ class Table
     /**	 *
      * @return array<Column>
      */
-    public function getColumns(): array
+    public function getColumns(bool $filter = true): array
     {
+        if ($filter) {
+            return array_filter($this->columns, function ($column) {
+                return ! (in_array($column->getName(), ['id', 'created_at', 'updated_at', 'deleted_at']));
+            });
+        }
+
         return $this->columns;
     }
 
@@ -53,9 +57,8 @@ class Table
     {
         $columns = Schema::getColumns($this->name);
 
-        foreach($columns as $column)
-        {
-            $this->columns[$column['name']] = (new Column($column['name'], ColumnType::from($column['type'])))->setNullable($column['nullable']);
+        foreach ($columns as $column) {
+            $this->columns[$column['name']] = (new Column($column['name'], ColumnType::tryFrom($column['type_name'])))->setNullable($column['nullable']);
         }
 
         return $this;
@@ -71,9 +74,7 @@ class Table
             }
 
             foreach ($key['columns'] as $column) {
-
-                if(!isset($this->columns[$column]))
-                {
+                if (! isset($this->columns[$column])) {
                     return;
                 }
 
@@ -109,10 +110,8 @@ class Table
     private function setBelongsToRelationships(array $foreign_keys): void
     {
         foreach ($foreign_keys as $foreign_key) {
-            foreach($foreign_key['columns'] as $column) {
-
-                if(!isset($this->columns[$column]))
-                {
+            foreach ($foreign_key['columns'] as $column) {
+                if (! isset($this->columns[$column])) {
                     continue;
                 }
 
@@ -131,10 +130,8 @@ class Table
                 continue;
             }
 
-            foreach($foreign_key['foreign_columns'] as $column) {
-
-                if(!isset($this->columns[$column]))
-                {
+            foreach ($foreign_key['foreign_columns'] as $column) {
+                if (! isset($this->columns[$column])) {
                     continue;
                 }
 

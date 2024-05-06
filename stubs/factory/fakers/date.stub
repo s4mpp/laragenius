@@ -1,1 +1,1 @@
-fake()->date('Y-m-d H:i:s')
+fake()->date('{{ FORMAT }}')
