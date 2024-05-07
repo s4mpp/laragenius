@@ -10,7 +10,7 @@ class StubTest extends TestCase
 {
     public function test_if_stub_is_stringable(): void
     {
-        $stub = new Stub('stubs/use');
+        $stub = new Stub('use');
 
         $this->assertIsString((string) $stub);
     }
@@ -24,7 +24,7 @@ class StubTest extends TestCase
 
     public function test_fill(): void
     {
-        $stub = new Stub('stubs/use');
+        $stub = new Stub('use');
 
         $stub->fill([
             'CLASS_PATH' => 'path_example',
@@ -35,7 +35,7 @@ class StubTest extends TestCase
 
     public function test_put(): void
     {
-        $stub = new Stub('stubs/use');
+        $stub = new Stub('use');
 
         $stub->put('file-use');
 

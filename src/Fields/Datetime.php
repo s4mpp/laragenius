@@ -9,6 +9,6 @@ class Datetime implements FakerInterface
 {
     public function getFaker(string $field_name): Stub
     {
-        return (new Stub('stubs/factory/fakers/date'))->fill(['FORMAT' => 'Y-m-d H:i:s']);
+        return (new Stub('factory/fakers/date'))->fill(['FORMAT' => 'Y-m-d H:i:s']);
     }
 }

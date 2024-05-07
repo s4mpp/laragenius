@@ -17,10 +17,6 @@ class LarageniusServiceProvider extends ServiceProvider
             $this->commands([
                 MakeCommand::class,
             ]);
-
-            $this->publishes([
-                __DIR__.'/../../stubs/laragenius-config.stub' => config_path('laragenius.php'),
-            ], 'laragenius-config');
         }
     }
 }

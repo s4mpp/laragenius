@@ -9,6 +9,6 @@ class Date implements FakerInterface
 {
     public function getFaker(string $field_name): Stub
     {
-        return (new Stub('stubs/factory/fakers/date'))->fill(['FORMAT' => 'Y-m-d']);
+        return (new Stub('factory/fakers/date'))->fill(['FORMAT' => 'Y-m-d']);
     }
 }

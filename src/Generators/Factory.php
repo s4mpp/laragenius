@@ -27,7 +27,7 @@ final class Factory extends Generator
 
         $table->loadColumns()->loadUniqueIndexes()->loadRelationships();
 
-        $stub = new Stub('stubs/factory/factory');
+        $stub = new Stub('factory/factory');
 
         $stub->fill([
             'DEFINITION' => $this->getDefinition(),
@@ -41,7 +41,7 @@ final class Factory extends Generator
         $definition = '';
 
         foreach ($this->getColumns() as $column) {
-            $definition .= (new Stub('stubs/factory/definition'))->fill([
+            $definition .= (new Stub('factory/definition'))->fill([
                 'FIELD_NAME' => $column->getName(),
                 'FAKER_DEFINITION' => $this->getFakerDefinition($column),
                 'UNIQUE' => $this->getUnique($column),
@@ -54,7 +54,7 @@ final class Factory extends Generator
     private function getUnique(Column $column): ?Stub
     {
         if ($column->isUnique()) {
-            return new Stub('stubs/factory/fakers/unique');
+            return new Stub('factory/fakers/unique');
         }
 
         return null;
@@ -74,7 +74,7 @@ final class Factory extends Generator
             return 'null';
         }
 
-        return new Stub('stubs/factory/fakers/word');
+        return new Stub('factory/fakers/word');
 
     }
 

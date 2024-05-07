@@ -27,7 +27,7 @@ final class Seeder extends Generator
 
         $table->loadColumns()->loadRelationships();
 
-        $stub = new Stub('stubs/seeder/seeder');
+        $stub = new Stub('seeder/seeder');
 
         $stub->fill([
             'FOR' => $this->getFors(),
@@ -61,7 +61,7 @@ final class Seeder extends Generator
 
         $this->addUse('App\Models\\'.$model_name);
 
-        return (new Stub('stubs/seeder/for'))->fill([
+        return (new Stub('seeder/for'))->fill([
             'NAME' => $relationship->getType()->nameMethod($table_name),
             'MODEL' => $model_name,
         ]);

@@ -11,16 +11,12 @@ final class Stub
 
     public function __construct(private string $file)
     {
-        $file = file_get_contents($file.'.stub', true);
+        $path = __DIR__.'/../stubs/';
+
+        $file = file_get_contents($path.$file.'.stub', true);
 
         $this->content = $file;
     }
-
-    public static function getFolder(string $folder): string
-    {
-        return __DIR__.'/../stubs/'.$folder;
-    }
-
 
     public function __toString()
     {
@@ -46,6 +42,8 @@ final class Stub
         $path = implode('/', array_filter([$destination, $filename.'.php']));
 
         $destination_path = Laragenius::getDestinationPath();
+
+        dump($destination_path);
 
         $filesystem->put($destination_path.'/'.$path, $this->content);
 
