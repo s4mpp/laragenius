@@ -125,13 +125,14 @@ class Table
     {
         foreach ($foreign_keys as $foreign_key) {
             /** @var array<string> */
-            $columns = $foreign_key['foreign_columns'];
-            foreach ($columns as $column) {
+            $foreign_columns = $foreign_key['foreign_columns'];
+
+            foreach ($foreign_columns as $foreign_column) {
                 if ($foreign_key['foreign_table'] != $this->name) {
                     continue;
                 }
 
-                $this->getColumn($column)?->addRelationship(new Relationship($table_name, RelationshipType::HasMany));
+                $this->getColumn($foreign_column)?->addRelationship(new Relationship($table_name, RelationshipType::HasMany));
             }
         }
     }

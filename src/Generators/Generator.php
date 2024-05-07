@@ -10,13 +10,12 @@ abstract class Generator implements GeneratorInterface
 {
     protected string $folder;
 
-    // protected string $stub_file;
-
     /**
      * @var array<string>
      */
     private array $uses = [];
 
+    //TODO table not required
     public function __construct(private Table $table)
     {
     }

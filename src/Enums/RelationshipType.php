@@ -15,7 +15,7 @@ enum RelationshipType
     {
         return match ($this) {
             self::HasMany => Str::camel($table_name),
-            self::BelongsTo => Str::singular($table_name),
+            self::BelongsTo => Str::camel(Str::singular($table_name)),
         };
     }
 

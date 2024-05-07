@@ -17,6 +17,7 @@ enum ColumnType: string
     case Decimal = 'numeric';
     case Varchar = 'varchar';
     case Datetime = 'datetime';
+    case Timestamp = 'timestamp';
     case Date = 'date';
     case Text = 'text';
 
@@ -27,6 +28,7 @@ enum ColumnType: string
             self::Decimal => Decimal::class,
             self::Varchar => Varchar::class,
             self::Datetime => Datetime::class,
+            self::Timestamp => Datetime::class,
             self::Date => Date::class,
             self::Text => Text::class
         };
@@ -36,6 +38,7 @@ enum ColumnType: string
     {
         return match ($this) {
             self::Datetime => 'datetime',
+            self::Timestamp => 'datetime',
             self::Date => 'date',
 
             default => null,

@@ -1,6 +1,6 @@
 public function {{ NAME }}(): BelongsTo
 	{
-		return $this->BelongsTo({{ MODEL }}::class);
+		return $this->belongsTo({{ MODEL }}::class);
 	}
 
 	
