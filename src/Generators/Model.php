@@ -21,7 +21,7 @@ final class Model extends Generator
     }
 
     public function getContent(): Stub
-    {        
+    {
         $table = $this->getTable();
 
         $table->loadColumns()->loadRelationships();

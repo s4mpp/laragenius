@@ -6,7 +6,6 @@ use S4mpp\Laragenius\Fields\Date;
 use S4mpp\Laragenius\Fields\Text;
 use S4mpp\Laragenius\Fields\Decimal;
 use S4mpp\Laragenius\Fields\Integer;
-use S4mpp\Laragenius\Fields\TinyInt;
 use S4mpp\Laragenius\Fields\Varchar;
 use S4mpp\Laragenius\Fields\Datetime;
 

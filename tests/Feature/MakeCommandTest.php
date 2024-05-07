@@ -2,7 +2,7 @@
 
 namespace S4mpp\Laragenius\Tests\Feature;
 
-use Illuminate\Console\Concerns\ConfiguresPrompts;
+use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Laragenius;
 use S4mpp\Laragenius\Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
@@ -10,8 +10,6 @@ use S4mpp\Laragenius\Generators\Model;
 use S4mpp\Laragenius\Generators\Seeder;
 use S4mpp\Laragenius\Generators\Factory;
 use Orchestra\Testbench\Concerns\WithWorkbench;
-use S4mpp\Laragenius\Fields\Varchar;
-use S4mpp\Laragenius\Stub;
 
 class MakeCommandTest extends TestCase
 {
@@ -23,7 +21,7 @@ class MakeCommandTest extends TestCase
 
         Laragenius::flushGenerators();
     }
-    
+
     //TODO generate one test for each generator
     public function test_make_command(): void
     {
@@ -54,8 +52,8 @@ class MakeCommandTest extends TestCase
             $table->foreignId('table_example_email')->references('email')->on('examples');
         });
 
-        $command = $this->artisan('lg:make', ['table' => 'examples']);
-        
+        $command = $this->artisan('lg:make', ['table' => 'examples', '--force' => true]);
+
         $command->expectsChoice('Select the resources', [Model::class, Seeder::class, Factory::class], array_merge(['', 0, 1, 2, 'None'], Laragenius::getGenerators()))
             ->expectsOutputToContain('File [app/Models/Example.php] created.')
             ->expectsOutputToContain('File [database/seeders/ExampleSeeder.php] created.')
@@ -71,18 +69,16 @@ class MakeCommandTest extends TestCase
     public function test_make_command_with_table_nonexistent(): void
     {
         $command = $this->artisan('lg:make', ['table' => 'xxxxxx']);
-        
+
         $command->expectsOutputToContain('Table xxxxxx not found')->doesntExpectOutputToContain('created')->assertFailed();
     }
 
     public function test_select_invalid_resource(): void
     {
-        
-
         Laragenius::addGenerator(Stub::class);
 
         $command = $this->artisan('lg:make', ['table' => 'users']);
-        
+
         $command->expectsChoice('Select the resources', [Stub::class], array_merge(['', 0, 1, 2, 3, 'None'], Laragenius::getGenerators()))
             ->expectsOutputToContain('is not a generator')->doesntExpectOutputToContain('created')->assertFailed();
     }

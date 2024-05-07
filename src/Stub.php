@@ -3,19 +3,20 @@
 namespace S4mpp\Laragenius;
 
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Config;
 
 final class Stub
 {
     private string $content;
 
-    public function __construct(private string $file)
+    public function __construct(string $file, bool $use_local_path = true)
     {
-        $path = __DIR__.'/../stubs/';
+        if ($use_local_path) {
+            $file = __DIR__.'/../stubs/'.$file;
+        }
 
-        $file = file_get_contents($path.$file.'.stub', true);
+        $file = file_get_contents($file.'.stub', true);
 
-        $this->content = $file;
+        $this->content = (string) $file;
     }
 
     public function __toString()
@@ -24,12 +25,12 @@ final class Stub
     }
 
     /**
-     * @param  array<string>  $stub_variables
+     * @param  array<string|Stub|null>  $stub_variables
      */
     public function fill(array $stub_variables = []): self
     {
         foreach ($stub_variables as $search => $replace) {
-            $this->content = str_replace('{{ '.$search.' }}', $replace, $this->content);
+            $this->content = str_replace('{{ '.$search.' }}', (string) $replace, $this->content);
         }
 
         return $this;
@@ -43,9 +44,13 @@ final class Stub
 
         $destination_path = Laragenius::getDestinationPath();
 
-        dump($destination_path);
+        $full_path = $destination_path.'/'.$path;
 
-        $filesystem->put($destination_path.'/'.$path, $this->content);
+        if (! Laragenius::isForcingOverwrite() && $filesystem->exists($full_path)) {
+            throw new \Exception('File already exists');
+        }
+
+        $filesystem->put($full_path, $this->content);
 
         return $path;
     }

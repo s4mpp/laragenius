@@ -13,7 +13,14 @@ final class Laragenius
      */
     private static array $generators = [];
 
-    private string $destination_path;
+    private static string $destination_path;
+
+    private static bool $force_overwrite = false;
+
+    public static function forceOverwrite(bool $force = true): void
+    {
+        self::$force_overwrite = $force;
+    }
 
     public static function addGenerator(string $generator): void
     {
@@ -36,17 +43,19 @@ final class Laragenius
     public static function flushGenerators(): void
     {
         self::$generators = [];
-
-        return;
     }
 
     public static function getDestinationPath(): string
     {
-        if(isset(self::$destination_path))
-        {
+        if (isset(self::$destination_path)) {
             return self::$destination_path;
         }
 
         return base_path();
+    }
+
+    public static function isForcingOverwrite(): bool
+    {
+        return self::$force_overwrite;
     }
 }

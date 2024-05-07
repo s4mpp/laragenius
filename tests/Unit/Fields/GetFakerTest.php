@@ -7,7 +7,6 @@ use S4mpp\Laragenius\Fields\Date;
 use S4mpp\Laragenius\Fields\Text;
 use S4mpp\Laragenius\Fields\Decimal;
 use S4mpp\Laragenius\Fields\Integer;
-use S4mpp\Laragenius\Fields\TinyInt;
 use S4mpp\Laragenius\Fields\Varchar;
 use S4mpp\Laragenius\Tests\TestCase;
 use S4mpp\Laragenius\Fields\Datetime;
@@ -35,6 +34,6 @@ class GetFakerTest extends TestCase
 
         $faker = $field->getFaker('id');
         $this->assertInstanceOf(Stub::class, $faker);
-        $this->assertStringContainsString($file_name, (string)$faker);
+        $this->assertStringContainsString($file_name, (string) $faker);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace S4mpp\Laragenius\Tests\Unit\Generators;
 
+use S4mpp\Laragenius\Laragenius;
 use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
@@ -21,6 +22,8 @@ class ModelTest extends TestCase
 
     public function test_create(): void
     {
+        Laragenius::forceOverwrite();
+
         Schema::create('table-users', fn ($table) => $table->foreignId('user_Id')->references('id')->on('users'));
 
         $model = new Model(new Table('table-users'));

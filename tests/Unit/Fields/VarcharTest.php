@@ -27,6 +27,6 @@ class VarcharTest extends TestCase
 
         $faker = $field->getFaker($name_field);
 
-        $this->assertStringContainsString($file_name, (string)$faker);
+        $this->assertStringContainsString($file_name, (string) $faker);
     }
 }

@@ -69,13 +69,11 @@ final class Factory extends Generator
             return (new $field_class())->getFaker($column->getName());
         }
 
-        if($column->isNullable())
-        {
+        if ($column->isNullable()) {
             return 'null';
         }
 
         return new Stub('factory/fakers/word');
-
     }
 
     /**
@@ -83,16 +81,10 @@ final class Factory extends Generator
      */
     private function getColumns(): array
     {
-        return array_filter($this->getTable()->getColumns(), function($column) {
-            $relationships = array_filter($column->getRelationships(), fn($relationship) => $relationship->getType() == RelationshipType::BelongsTo);
+        return array_filter($this->getTable()->getColumns(), function ($column) {
+            $relationships = array_filter($column->getRelationships(), fn ($relationship) => $relationship->getType() == RelationshipType::BelongsTo);
 
-            if(!empty($relationships))
-            {
-                return false;
-            }
-
-            return true;
-
+            return ! (! empty($relationships));
         });
     }
 }

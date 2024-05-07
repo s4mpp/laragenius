@@ -108,8 +108,12 @@ class Table
     private function setBelongsToRelationships(array $foreign_keys): void
     {
         foreach ($foreign_keys as $foreign_key) {
-            foreach ($foreign_key['columns'] as $column) {
-                $this->getColumn($column)?->addRelationship(new Relationship($foreign_key['foreign_table'], RelationshipType::BelongsTo));
+            /** @var array<string> */
+            $columns = $foreign_key['columns'];
+            foreach ($columns as $column) {
+                /** @var string */
+                $foreign_table = $foreign_key['foreign_table'];
+                $this->getColumn($column)?->addRelationship(new Relationship($foreign_table, RelationshipType::BelongsTo));
             }
         }
     }
@@ -120,17 +124,19 @@ class Table
     private function setHasManyRelationship(array $foreign_keys, string $table_name): void
     {
         foreach ($foreign_keys as $foreign_key) {
-            foreach ($foreign_key['foreign_columns'] as $column) {
-
-                if($foreign_key['foreign_table'] != $this->name) {continue;}
-                
+            /** @var array<string> */
+            $columns = $foreign_key['foreign_columns'];
+            foreach ($columns as $column) {
+                if ($foreign_key['foreign_table'] != $this->name) {
+                    continue;
+                }
 
                 $this->getColumn($column)?->addRelationship(new Relationship($table_name, RelationshipType::HasMany));
             }
         }
     }
 
-    private function getColumn(string $column):?Column
+    private function getColumn(string $column): ?Column
     {
         if (! isset($this->columns[$column])) {
             return null;

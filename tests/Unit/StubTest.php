@@ -4,6 +4,7 @@ namespace S4mpp\Laragenius\Tests\Unit;
 
 use ErrorException;
 use S4mpp\Laragenius\Stub;
+use S4mpp\Laragenius\Laragenius;
 use S4mpp\Laragenius\Tests\TestCase;
 
 class StubTest extends TestCase
@@ -35,6 +36,8 @@ class StubTest extends TestCase
 
     public function test_put(): void
     {
+        Laragenius::forceOverwrite();
+
         $stub = new Stub('use');
 
         $stub->put('file-use');

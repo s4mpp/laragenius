@@ -2,7 +2,6 @@
 
 namespace S4mpp\Laragenius\Providers;
 
-use Laravel\Prompts\Prompt;
 use Illuminate\Support\ServiceProvider;
 use S4mpp\Laragenius\Commands\MakeCommand;
 
