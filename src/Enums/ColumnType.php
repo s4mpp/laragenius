@@ -14,6 +14,9 @@ enum ColumnType: string
     //TODO Type boolean
 
     case Integer = 'integer';
+    case BigInteger = 'bigint';
+    case TinyInt = 'tinyint';
+    case Int = 'int';
     case Decimal = 'numeric';
     case Varchar = 'varchar';
     case Datetime = 'datetime';
@@ -25,6 +28,9 @@ enum ColumnType: string
     {
         return match ($this) {
             self::Integer => Integer::class,
+            self::BigInteger => Integer::class,
+            self::Int => Integer::class,
+            self::TinyInt => Integer::class,
             self::Decimal => Decimal::class,
             self::Varchar => Varchar::class,
             self::Datetime => Datetime::class,

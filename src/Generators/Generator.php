@@ -15,7 +15,6 @@ abstract class Generator implements GeneratorInterface
      */
     private array $uses = [];
 
-    //TODO table not required
     public function __construct(private Table $table)
     {
     }
@@ -52,7 +51,7 @@ abstract class Generator implements GeneratorInterface
     protected function getStubVariables(): array
     {
         return [
-            'STUDLY_NAME' => Table::toModelName($this->table->getName()),
+            'STUDLY_NAME' => $this->table->getModelName(),
             'NAMESPACE' => $this->getNamespace(),
             'USES' => $this->getUses(),
         ];

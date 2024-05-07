@@ -21,7 +21,7 @@ final class CustomGenerator extends Generator
 
     public function getContent(): Stub
     {
-        $stub = new Stub('workbench/stubs/generator');
+        $stub = new Stub(__DIR__.'/../../../workbench/stubs/generator', false);
 
         return $stub;
     }
