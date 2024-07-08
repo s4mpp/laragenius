@@ -96,6 +96,7 @@ class Table
                 return;
             }
 
+            //TODO add foreign column name
             $this->setHasManyRelationship($foreign_keys, $table_name);
         }, $tables);
 

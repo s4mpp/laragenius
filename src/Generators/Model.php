@@ -90,6 +90,7 @@ final class Model extends Generator
 
         $type = $relationship->getType();
 
+        //TODO add correctly namespace model
         $this->addUse('App\Models\\'.$model_name);
         $this->addUse($type->classRelationLaravel());
 

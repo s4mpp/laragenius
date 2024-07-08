@@ -50,6 +50,8 @@ final class Stub
             throw new \Exception('File already exists');
         }
 
+        // TODO create folder if not exists
+
         $filesystem->put($full_path, $this->content);
 
         return $path;

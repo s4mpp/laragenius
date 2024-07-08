@@ -40,7 +40,7 @@ final class Factory extends Generator
     {
         $definition = '';
 
-        foreach ($this->getColumns() as $column) {
+        foreach ($this->getColumnsWithoutRelationships() as $column) {
             $definition .= (new Stub('factory/definition'))->fill([
                 'FIELD_NAME' => $column->getName(),
                 'FAKER_DEFINITION' => $this->getFakerDefinition($column),
@@ -60,7 +60,7 @@ final class Factory extends Generator
         return null;
     }
 
-    private function getFakerDefinition(Column $column): string
+    private function getFakerDefinition(Column $column): string //TODO return stub
     {
         /** @var FakerInterface|null */
         $field_class = $column->getType()?->class();
@@ -79,7 +79,7 @@ final class Factory extends Generator
     /**
      * @return array<Column>
      */
-    private function getColumns(): array
+    private function getColumnsWithoutRelationships(): array
     {
         return array_filter($this->getTable()->getColumns(), function ($column) {
             $relationships = array_filter($column->getRelationships(), fn ($relationship) => $relationship->getType() == RelationshipType::BelongsTo);

@@ -8,6 +8,7 @@ use S4mpp\Laragenius\Commands\MakeCommand;
 /**
  * @codeCoverageIgnore
  */
+//TODO criar classe auxiliar para clientes testarem comandos personalizados
 class LarageniusServiceProvider extends ServiceProvider
 {
     public function boot(): void

@@ -53,12 +53,14 @@ final class Seeder extends Generator
         return $for;
     }
 
+
     private function getFor(Relationship $relationship): string
     {
         $table_name = $relationship->getTableName();
 
         $model_name = Table::toModelName($table_name);
 
+        //TODO add correctly namespace model
         $this->addUse('App\Models\\'.$model_name);
 
         return (new Stub('seeder/for'))->fill([
