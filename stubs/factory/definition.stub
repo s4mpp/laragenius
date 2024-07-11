@@ -1,2 +1,2 @@
-'{{ FIELD_NAME }}' => {{ FAKER_DEFINITION }}{{ UNIQUE }},
+'{{ FIELD_NAME }}' => {{ FAKER_DEFINITION }}, {{ OPTIONAL }}
             

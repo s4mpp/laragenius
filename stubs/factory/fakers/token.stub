@@ -1,1 +1,1 @@
-fake()->sha1()
+fake()->{{ UNIQUE }}sha1()

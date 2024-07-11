@@ -1,1 +1,1 @@
-fake()->email()
+fake()->{{ UNIQUE }}email()

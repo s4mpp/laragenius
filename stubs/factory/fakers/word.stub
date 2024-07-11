@@ -1,1 +1,1 @@
-fake()->word()
+fake()->{{ UNIQUE }}word()

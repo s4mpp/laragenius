@@ -1,1 +1,1 @@
-fake()->date('{{ FORMAT }}')
+fake()->{{ UNIQUE }}date('{{ FORMAT }}')

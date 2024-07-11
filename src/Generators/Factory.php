@@ -45,6 +45,7 @@ final class Factory extends Generator
                 'FIELD_NAME' => $column->getName(),
                 'FAKER_DEFINITION' => $this->getFakerDefinition($column),
                 'UNIQUE' => $this->getUnique($column),
+                'OPTIONAL' => $this->getOptional($column)
             ]);
         }
 
@@ -55,6 +56,15 @@ final class Factory extends Generator
     {
         if ($column->isUnique()) {
             return new Stub('factory/fakers/unique');
+        }
+
+        return null;
+    }
+
+    private function getOptional(Column $column): ?Stub
+    {
+        if ($column->isNullable()) {
+            return new Stub('factory/fakers/optional');
         }
 
         return null;

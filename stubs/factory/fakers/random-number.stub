@@ -1,1 +1,1 @@
-fake()->randomNumber()
+fake()->{{ UNIQUE }}randomNumber()

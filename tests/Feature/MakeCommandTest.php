@@ -58,7 +58,7 @@ class MakeCommandTest extends TestCase
             ->expectsOutputToContain('File [app/Models/Example.php] created.')
             ->expectsOutputToContain('File [database/seeders/ExampleSeeder.php] created.')
             ->expectsOutputToContain('File [database/factories/ExampleFactory.php] created.')
-            ->assertSuccessful();
+            ->assertSuccessful();      
 
         //TODO test content of files
         $this->assertFileExists(base_path('app/Models/Example.php'));

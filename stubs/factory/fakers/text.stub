@@ -1,1 +1,1 @@
-fake()->text()
+fake()->{{ UNIQUE }}text()

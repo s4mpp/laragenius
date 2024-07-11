@@ -1,1 +1,1 @@
-fake()->phoneNumber()
+fake()->{{ UNIQUE }}phoneNumber()

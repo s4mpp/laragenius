@@ -47,6 +47,8 @@ class MakeCommand extends Command
         } catch (\Exception $e) {
             $this->error($e->getMessage());
 
+            dump($e->getMessage());
+
             return 1;
         }
     }

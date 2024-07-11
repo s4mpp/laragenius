@@ -20,7 +20,7 @@ class GetFakerTest extends TestCase
             'decimal' => [Decimal::class, 'randomFloat()'],
             'varchar' => [Varchar::class, 'word()'],
             'datetime' => [Datetime::class, "date('Y-m-d H:i:s')"],
-            'date' => [Date::class, "fake()->date('Y-m-d')"],
+            'date' => [Date::class, "date('Y-m-d')"],
             'text' => [Text::class, 'text()'],
         ];
     }
