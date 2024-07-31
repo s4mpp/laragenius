@@ -10,7 +10,7 @@ use S4mpp\Laragenius\Enums\RelationshipType;
 class Table
 {
     /** @var array<Column> */
-    private array $columns = [];
+    private array $columns = []; //TODO remover definição inicial de array
 
     private const TABLES_EXCLUDED = [
         'failed_jobs',
@@ -54,7 +54,6 @@ class Table
         return $this->columns;
     }
 
-    // TODO call in constructor
     public function loadColumns(): self
     {
         $columns = Schema::getColumns($this->name);
@@ -62,6 +61,7 @@ class Table
         foreach ($columns as $column) {
             $this->columns[$column['name']] = (new Column($column['name'], ColumnType::tryFrom($column['type_name'])))->setNullable($column['nullable']);
         }
+        
 
         return $this;
     }

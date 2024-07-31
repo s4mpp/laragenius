@@ -36,6 +36,7 @@ final class Seeder extends Generator
         return $stub;
     }
 
+    //TODO add deeply relationship for
     private function getFors(): string
     {
         $for = '';

@@ -70,10 +70,10 @@ final class Factory extends Generator
         return null;
     }
 
-    private function getFakerDefinition(Column $column): string //TODO return stub
+    private function getFakerDefinition(Column $column): string
     {
         /** @var FakerInterface|null */
-        $field_class = $column->getType()?->class();
+        $field_class = $column->getType()?->class();  
 
         if ($field_class) {
             return (new $field_class())->getFaker($column->getName());

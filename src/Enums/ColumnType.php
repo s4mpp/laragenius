@@ -17,12 +17,13 @@ enum ColumnType: string
     case BigInteger = 'bigint';
     case TinyInt = 'tinyint';
     case Int = 'int';
-    case Decimal = 'numeric';
+    case Decimal = 'decimal';
     case Varchar = 'varchar';
     case Datetime = 'datetime';
     case Timestamp = 'timestamp';
     case Date = 'date';
     case Text = 'text';
+    case Char = 'char';
 
     public function class(): string
     {
@@ -33,6 +34,7 @@ enum ColumnType: string
             self::TinyInt => Integer::class,
             self::Decimal => Decimal::class,
             self::Varchar => Varchar::class,
+            self::Char => Varchar::class,
             self::Datetime => Datetime::class,
             self::Timestamp => Datetime::class,
             self::Date => Date::class,
