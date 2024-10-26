@@ -1,6 +1,6 @@
 /**
-	* @var array<mixed>
-	*/
-	protected $casts = [
-		{{ CASTS }}
-	];
+     * @var array<string,string>
+     */
+    protected $casts = [
+        {{ CASTS }}
+    ];

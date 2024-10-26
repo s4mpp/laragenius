@@ -39,6 +39,6 @@ class SeederTest extends TestCase
 
         $content = (string) $seeder->getContent();
 
-        $this->assertStringContainsString("for(Main::factory()->create(), 'main')", $content);
+        $this->assertStringContainsString("for(Main::factory(), 'main')", $content);
     }
 }

@@ -10,6 +10,15 @@ final class Model extends Generator
 {
     protected string $folder = 'app/Models';
 
+    public function __construct(private Table $table)
+    {
+        parent::__construct($table);
+
+        $this->addUse("Database\Factories\\".$table->getModelName().'Factory');
+        $this->addUse('Illuminate\Database\Eloquent\Factories\HasFactory');
+        $this->addUse('Illuminate\Database\Eloquent\Model');
+    }
+
     public function getNamespace(): string
     {
         return 'App\Models';
@@ -90,7 +99,6 @@ final class Model extends Generator
 
         $type = $relationship->getType();
 
-        //TODO add correctly namespace model
         $this->addUse('App\Models\\'.$model_name);
         $this->addUse($type->classRelationLaravel());
 

@@ -59,12 +59,16 @@ abstract class Generator implements GeneratorInterface
 
     private function getUses(): string
     {
-        $uses = '';
+        $import_uses = '';
 
-        foreach (array_unique($this->uses) as $use) {
-            $uses .= (new Stub('use'))->fill(['CLASS_PATH' => $use]);
+        $uses = array_unique($this->uses);
+
+        usort($uses, fn ($a, $b) => mb_strlen($a) - mb_strlen($b));
+
+        foreach ($uses as $use) {
+            $import_uses .= (new Stub('use'))->fill(['CLASS_PATH' => $use]);
         }
 
-        return $uses;
+        return $import_uses;
     }
 }

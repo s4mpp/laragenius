@@ -2,8 +2,6 @@
 
 namespace {{ NAMESPACE }};
 
-use Illuminate\Database\Seeder;
-use App\Models\{{ STUDLY_NAME }};
 {{ USES }}
 class {{ STUDLY_NAME }}Seeder extends Seeder
 {

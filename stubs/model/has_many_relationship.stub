@@ -1,6 +1,9 @@
-public function {{ NAME }}(): HasMany
-	{
-		return $this->hasMany({{ MODEL }}::class);
-	}
+/**
+     * @return HasMany<{{ MODEL }}>
+     */
+    public function {{ NAME }}(): HasMany
+    {
+        return $this->hasMany({{ MODEL }}::class);
+    }
 
     

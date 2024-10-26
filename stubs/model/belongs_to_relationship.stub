@@ -1,6 +1,9 @@
-public function {{ NAME }}(): BelongsTo
-	{
-		return $this->belongsTo({{ MODEL }}::class);
-	}
+/**
+     * @return BelongsTo<{{ MODEL }},self>
+     */
+    public function {{ NAME }}(): BelongsTo
+    {
+        return $this->belongsTo({{ MODEL }}::class);
+    }
 
-	
+    

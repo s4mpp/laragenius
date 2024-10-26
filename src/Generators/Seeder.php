@@ -11,6 +11,14 @@ final class Seeder extends Generator
 {
     protected string $folder = 'database/seeders';
 
+    public function __construct(private Table $table)
+    {
+        parent::__construct($table);
+
+        $this->addUse("App\Models\\".$table->getModelName());
+        $this->addUse('Illuminate\Database\Seeder');
+    }
+
     public function getNamespace(): string
     {
         return 'Database\Seeders';
@@ -53,7 +61,6 @@ final class Seeder extends Generator
 
         return $for;
     }
-
 
     private function getFor(Relationship $relationship): string
     {

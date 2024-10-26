@@ -1,2 +1,2 @@
 
-			->for({{ MODEL }}::factory()->create(), '{{ NAME }}')
+			->for({{ MODEL }}::factory(), '{{ NAME }}')

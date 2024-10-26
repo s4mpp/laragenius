@@ -61,7 +61,6 @@ class Table
         foreach ($columns as $column) {
             $this->columns[$column['name']] = (new Column($column['name'], ColumnType::tryFrom($column['type_name'])))->setNullable($column['nullable']);
         }
-        
 
         return $this;
     }

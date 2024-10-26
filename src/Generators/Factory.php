@@ -3,6 +3,7 @@
 namespace S4mpp\Laragenius\Generators;
 
 use S4mpp\Laragenius\Stub;
+use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Schema\Column;
 use S4mpp\Laragenius\Enums\RelationshipType;
 use S4mpp\Laragenius\Contracts\FakerInterface;
@@ -10,6 +11,13 @@ use S4mpp\Laragenius\Contracts\FakerInterface;
 final class Factory extends Generator
 {
     protected string $folder = 'database/factories';
+
+    public function __construct(private Table $table)
+    {
+        parent::__construct($table);
+
+        $this->addUse('Illuminate\Database\Eloquent\Factories\Factory');
+    }
 
     public function getNamespace(): string
     {
@@ -40,12 +48,12 @@ final class Factory extends Generator
     {
         $definition = '';
 
-        foreach ($this->getColumnsWithoutRelationships() as $column) {
+        foreach ($this->getTable()->getColumns() as $column) {
             $definition .= (new Stub('factory/definition'))->fill([
                 'FIELD_NAME' => $column->getName(),
                 'FAKER_DEFINITION' => $this->getFakerDefinition($column),
                 'UNIQUE' => $this->getUnique($column),
-                'OPTIONAL' => $this->getOptional($column)
+                'OPTIONAL' => $this->getOptional($column),
             ]);
         }
 
@@ -73,9 +81,21 @@ final class Factory extends Generator
     private function getFakerDefinition(Column $column): string
     {
         /** @var FakerInterface|null */
-        $field_class = $column->getType()?->class();  
+        $field_class = $column->getType()?->class();
 
         if ($field_class) {
+            $relationships = array_filter($column->getRelationships(), fn ($relationship) => $relationship->getType() == RelationshipType::BelongsTo);
+
+            if (! empty($relationships)) {
+                $model_factory = Table::toModelName($relationships[0]->getTableName());
+
+                $this->addUse("App\Models\\".$model_factory);
+
+                return (new Stub('factory/fakers/factory'))->fill([
+                    'MODEL' => $model_factory,
+                ]);
+            }
+
             return (new $field_class())->getFaker($column->getName());
         }
 
@@ -84,17 +104,5 @@ final class Factory extends Generator
         }
 
         return new Stub('factory/fakers/word');
-    }
-
-    /**
-     * @return array<Column>
-     */
-    private function getColumnsWithoutRelationships(): array
-    {
-        return array_filter($this->getTable()->getColumns(), function ($column) {
-            $relationships = array_filter($column->getRelationships(), fn ($relationship) => $relationship->getType() == RelationshipType::BelongsTo);
-
-            return ! (! empty($relationships));
-        });
     }
 }

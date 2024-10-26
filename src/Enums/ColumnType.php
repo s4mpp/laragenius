@@ -18,6 +18,7 @@ enum ColumnType: string
     case TinyInt = 'tinyint';
     case Int = 'int';
     case Decimal = 'decimal';
+    case Numeric = 'numeric';
     case Varchar = 'varchar';
     case Datetime = 'datetime';
     case Timestamp = 'timestamp';
@@ -32,6 +33,7 @@ enum ColumnType: string
             self::BigInteger => Integer::class,
             self::Int => Integer::class,
             self::TinyInt => Integer::class,
+            self::Numeric => Decimal::class,
             self::Decimal => Decimal::class,
             self::Varchar => Varchar::class,
             self::Char => Varchar::class,

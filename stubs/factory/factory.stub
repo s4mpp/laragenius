@@ -2,8 +2,7 @@
 
 namespace {{ NAMESPACE }};
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-
+{{ USES }}
 class {{ STUDLY_NAME }}Factory extends Factory
 {
     public function definition()
