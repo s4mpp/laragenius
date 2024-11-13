@@ -7,6 +7,6 @@ class {{ STUDLY_NAME }}Seeder extends Seeder
 {
     public function run()
     {
-        {{ STUDLY_NAME }}::factory(){{ FOR }}->create();
+        {{ STUDLY_NAME }}::factory()->create();
     }
 }

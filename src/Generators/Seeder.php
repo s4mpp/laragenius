@@ -37,43 +37,8 @@ final class Seeder extends Generator
 
         $stub = new Stub('seeder/seeder');
 
-        $stub->fill([
-            'FOR' => $this->getFors(),
-        ]);
+        $stub->fill();
 
         return $stub;
-    }
-
-    //TODO add deeply relationship for
-    private function getFors(): string
-    {
-        $for = '';
-
-        foreach ($this->getTable()->getColumns() as $column) {
-            foreach ($column->getRelationships() as $relationship) {
-                if ($relationship->getType() != RelationshipType::BelongsTo) {
-                    continue;
-                }
-
-                $for .= $this->getFor($relationship);
-            }
-        }
-
-        return $for;
-    }
-
-    private function getFor(Relationship $relationship): string
-    {
-        $table_name = $relationship->getTableName();
-
-        $model_name = Table::toModelName($table_name);
-
-        //TODO add correctly namespace model
-        $this->addUse('App\Models\\'.$model_name);
-
-        return (new Stub('seeder/for'))->fill([
-            'NAME' => $relationship->getType()->nameMethod($table_name),
-            'MODEL' => $model_name,
-        ]);
     }
 }
