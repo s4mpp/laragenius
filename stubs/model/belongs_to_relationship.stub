@@ -1,5 +1,5 @@
 /**
-     * @return BelongsTo<{{ MODEL }},self>
+     * @return BelongsTo<{{ MODEL }},$this>
      */
     public function {{ NAME }}(): BelongsTo
     {

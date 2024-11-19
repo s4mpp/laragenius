@@ -1,5 +1,5 @@
 /**
-     * @return HasMany<{{ MODEL }}>
+     * @return HasMany<{{ MODEL }},$this>
      */
     public function {{ NAME }}(): HasMany
     {
