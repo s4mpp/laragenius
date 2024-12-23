@@ -4,8 +4,6 @@ namespace S4mpp\Laragenius\Generators;
 
 use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Schema\Table;
-use S4mpp\Laragenius\Schema\Relationship;
-use S4mpp\Laragenius\Enums\RelationshipType;
 
 final class Seeder extends Generator
 {

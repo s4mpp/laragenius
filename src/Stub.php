@@ -8,6 +8,8 @@ final class Stub
 {
     private string $content;
 
+    private string $original_content;
+
     public function __construct(string $file, bool $use_local_path = true)
     {
         if ($use_local_path) {
@@ -16,12 +18,19 @@ final class Stub
 
         $file = file_get_contents($file.'.stub', true);
 
-        $this->content = (string) $file;
+        $this->original_content = $this->content = (string) $file;
     }
 
     public function __toString()
     {
         return $this->content;
+    }
+
+    public function reset(): self
+    {
+        $this->content = $this->original_content;
+
+        return $this;
     }
 
     /**

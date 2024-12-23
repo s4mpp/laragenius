@@ -1,6 +1,6 @@
 {
 	"rules": {
-		"no_unused_imports": false,
+		"no_unused_imports": true,
 		"fully_qualified_strict_types": true,
 		"no_blank_lines_after_class_opening": true,
 		"elseif": true,
@@ -21,11 +21,7 @@
 		"ordered_imports": {
 			"sort_algorithm": "length"
 		},
-		"braces": {
-			"allow_single_line_anonymous_class_with_empty_body": true,
-			"allow_single_line_closure": true,
-			"position_after_control_structures": "next",
-			"position_after_functions_and_oop_constructs": "next"
-		}
+		"braces_position": true,
+		"function_declaration": false
 	}
 }
