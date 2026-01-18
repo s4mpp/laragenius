@@ -6,7 +6,7 @@ use S4mpp\Laragenius\Enums\RelationshipType;
 
 class Relationship
 {
-    public function __construct(private string $table_name, private RelationshipType $type)
+    public function __construct(private Table $table, private RelationshipType $type)
     {
     }
 
@@ -15,8 +15,8 @@ class Relationship
         return $this->type;
     }
 
-    public function getTableName(): string
+    public function getTable(): Table
     {
-        return $this->table_name;
+        return $this->table;
     }
 }

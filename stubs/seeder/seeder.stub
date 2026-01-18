@@ -3,10 +3,11 @@
 namespace {{ NAMESPACE }};
 
 {{ USES }}
-class {{ STUDLY_NAME }}Seeder extends Seeder
+
+class {{ MODEL_NAME }}Seeder extends Seeder
 {
     public function run()
     {
-        {{ STUDLY_NAME }}::factory()->count('10')->create();
+        {{ MODEL_NAME }}::factory()->count(10)->create();
     }
 }

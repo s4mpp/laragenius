@@ -4,3 +4,4 @@ vendor
 --configuration=
 coverage-result
 .env
+.env.testing

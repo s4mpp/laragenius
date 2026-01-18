@@ -2,45 +2,70 @@
 
 namespace S4mpp\Laragenius\Commands;
 
+use S4mpp\Laragenius\Stub;
 use Illuminate\Console\Command;
 use S4mpp\Laragenius\Laragenius;
 use S4mpp\Laragenius\Schema\Table;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Schema;
 
 use function Laravel\Prompts\multiselect;
 
-use S4mpp\Laragenius\Generators\Generator;
+use S4mpp\Laragenius\Contracts\Generator;
 
-/**
- * @codeCoverageIgnore
- */
 class MakeCommand extends Command
 {
-    protected $signature = 'lg:make {table} {--force}';
+    protected $signature = 'lg:make {table_name} {--force}';
 
-    protected $description = 'Make new files';
+    protected $description = 'Make new files from table';
 
     public function handle(): int
     {
-        $table = $this->argument('table');
+        $table_name = $this->argument('table_name');
 
-        Laragenius::forceOverwrite($this->option('force') == true);
+        $force_overwrite = $this->option('force');
 
         try {
-            if (! is_string($table)) {
+            if (! is_string($table_name)) {
                 throw new \Exception('Table must be a string');
             }
 
-            $table_instance = new Table($table);
+            if (! Schema::hasTable($table_name)) {
+                throw new \Exception('Tabela ['.$table_name.'] não encontrada');
+            }
 
-            $resources = $this->selectResources();
+            $table_instance = new Table($table_name);
 
-            foreach ($resources as $resource) {
-                /** @var Generator */
-                $generator = new $resource($table_instance);
+            $generators = $this->selectGenerators($table_instance);
 
-                $filename = $generator->create();
+            $filesystem = new Filesystem;
 
-                $this->info('File ['.$filename.'] created.');
+            foreach ($generators as $generator) {
+
+                /** @var Generator $instance */
+                $instance = new $generator($table_instance);
+
+                $file_path = implode('/', array_filter([Laragenius::getBasePath(), $instance->getDestinationPath(), $instance->getFilename().'.php']));
+
+                if (! $force_overwrite && $filesystem->exists($file_path)) {
+                    throw new \Exception('Arquivo ['.$file_path.'] já existe');
+                }
+
+                $stub = new Stub($instance->getStubFile());
+
+                $instance->mountFile($stub);
+
+                $stub->fill();
+
+                $filesystem->ensureDirectoryExists(Laragenius::getBasePath().'/'.$instance->getDestinationPath());
+
+                $saved = $filesystem->put($file_path, $stub->getContent());
+
+                if (! $saved) {
+                    throw new \Exception('Falha ao criar o arquivo.');
+                }
+
+                $this->info('Arquivo ['.$file_path.'] criado.');
             }
 
             return 0;
@@ -54,15 +79,19 @@ class MakeCommand extends Command
     /**
      * @return array<int|string>
      */
-    private function selectResources(): array
+    private function selectGenerators(Table $table_instance): array
     {
         return multiselect(
-            label: 'Select the resources', required: true,
+            label: 'Selecione os geradores',
+            required: true,
             options: Laragenius::getGenerators(),
-            validate: function ($selecteds) {
-                foreach ($selecteds as $value) {
-                    if (! is_subclass_of($value, Generator::class)) {
-                        return $value.' is not a generator';
+            validate: function ($generators) use ($table_instance): ?string {
+                foreach ($generators as $generator) {
+
+                    $instance = new $generator($table_instance);
+
+                    if (! $instance instanceof Generator) {
+                        return $generator.' não é um gerador válido. O gerador deve implementar a interface Generator';
                     }
                 }
 

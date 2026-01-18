@@ -2,13 +2,6 @@
 
 namespace S4mpp\Laragenius\Enums;
 
-use S4mpp\Laragenius\Fields\Date;
-use S4mpp\Laragenius\Fields\Text;
-use S4mpp\Laragenius\Fields\Decimal;
-use S4mpp\Laragenius\Fields\Integer;
-use S4mpp\Laragenius\Fields\Varchar;
-use S4mpp\Laragenius\Fields\Datetime;
-
 enum ColumnType: string
 {
     //TODO Type boolean
@@ -25,22 +18,25 @@ enum ColumnType: string
     case Date = 'date';
     case Text = 'text';
     case Char = 'char';
+    case Json = 'json';
 
-    public function class(): string
+    public function faker(): string
     {
         return match ($this) {
-            self::Integer => Integer::class,
-            self::BigInteger => Integer::class,
-            self::Int => Integer::class,
-            self::TinyInt => Integer::class,
-            self::Numeric => Decimal::class,
-            self::Decimal => Decimal::class,
-            self::Varchar => Varchar::class,
-            self::Char => Varchar::class,
-            self::Datetime => Datetime::class,
-            self::Timestamp => Datetime::class,
-            self::Date => Date::class,
-            self::Text => Text::class
+            self::Integer => 'randomInteger',
+            self::BigInteger => 'randomInteger',
+            self::Int => 'randomInteger',
+            self::TinyInt => 'randomInteger',
+            self::Numeric => 'randomFloat',
+            self::Decimal => 'randomFloat',
+            self::Varchar => 'word',
+            self::Char => 'word',
+            self::Datetime => 'dateTime',
+            self::Timestamp => 'dateTime',
+            self::Date => 'date',
+            self::Text => 'text',
+
+            default => 'word',
         };
     }
 

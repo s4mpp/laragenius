@@ -3,12 +3,13 @@
 namespace {{ NAMESPACE }};
 
 {{ USES }}
-class {{ STUDLY_NAME }} extends Model
+
+class {{ MODEL_NAME }} extends Model
 {
-    /** @use HasFactory<{{ STUDLY_NAME }}Factory> */
+    /** @use HasFactory<{{ MODEL_NAME }}Factory> */
     use HasFactory;
-
+    
     {{ CASTS }}
-
+    
     {{ RELATIONSHIPS }}
 }

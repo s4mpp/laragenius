@@ -19,11 +19,11 @@ enum RelationshipType
         };
     }
 
-    public function stub(): string
+    public function stubFile(): string
     {
         return match ($this) {
-            self::HasMany => 'has_many_relationship',
-            self::BelongsTo => 'belongs_to_relationship',
+            self::HasMany => 'has_many_relationship.stub',
+            self::BelongsTo => 'belongs_to_relationship.stub',
         };
     }
 

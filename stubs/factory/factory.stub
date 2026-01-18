@@ -3,7 +3,8 @@
 namespace {{ NAMESPACE }};
 
 {{ USES }}
-class {{ STUDLY_NAME }}Factory extends Factory
+
+class {{ MODEL_NAME }}Factory extends Factory
 {
     public function definition()
     {

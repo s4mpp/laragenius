@@ -6,18 +6,14 @@ use S4mpp\Laragenius\Enums\ColumnType;
 
 class Column
 {
-    private bool $nullable = false;
-
-    private bool $unique = false;
-
     /** @var array<Relationship> */
     private array $relationships = [];
 
-    public function __construct(private string $name, private ?ColumnType $type = null)
+    public function __construct(private string $name, private bool $is_nullable, private bool $is_unique, private ColumnType $type)
     {
     }
 
-    public function getType(): ?ColumnType
+    public function getType(): ColumnType
     {
         return $this->type;
     }
@@ -32,12 +28,12 @@ class Column
 
     public function isUnique(): bool
     {
-        return $this->unique;
+        return $this->is_unique;
     }
 
     public function isNullable(): bool
     {
-        return $this->nullable;
+        return $this->is_nullable;
     }
 
     public function getName(): string
@@ -48,19 +44,5 @@ class Column
     public function addRelationship(Relationship $relationship): void
     {
         $this->relationships[] = $relationship;
-    }
-
-    public function setNullable(bool $nullable): self
-    {
-        $this->nullable = $nullable;
-
-        return $this;
-    }
-
-    public function setUnique(bool $is_unique): self
-    {
-        $this->unique = $is_unique;
-
-        return $this;
     }
 }
