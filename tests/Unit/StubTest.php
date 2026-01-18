@@ -6,42 +6,47 @@ use ErrorException;
 use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Laragenius;
 use S4mpp\Laragenius\Tests\TestCase;
+use Illuminate\Filesystem\Filesystem;
 
 class StubTest extends TestCase
 {
-    public function test_if_stub_is_stringable(): void
+    protected function setUp(): void
     {
-        $stub = new Stub('use');
+        parent::setUp();
 
-        $this->assertIsString((string) $stub);
+        $filesystem = new Filesystem;
+
+        $filesystem->ensureDirectoryExists(base_path('path/to'));
+
+        $filesystem->put(base_path('path/to/file.stub'), 'stub {{ KEY }}');
     }
 
-    public function test_with_nonexistent_file(): void
+    public function test_create_instance(): void
     {
-        $this->expectException(ErrorException::class);
+        $stub = new Stub(base_path('path/to/file.stub'));
 
-        new Stub('stubs/xxxxxxx');
+        $this->assertEquals('stub {{ KEY }}', $stub->getContent());
+    }
+
+    public function test_set_variable(): void
+    {
+        $stub = new Stub(base_path('path/to/file.stub'));
+
+        $stub->setVariable('key', 'value');
+
+        $this->assertEquals(['key' => 'value'], $stub->getVariables());
     }
 
     public function test_fill(): void
     {
-        $stub = new Stub('use');
+        $word = fake()->word();
 
-        $stub->fill([
-            'CLASS_PATH' => 'path_example',
-        ]);
+        $stub = new Stub(base_path('path/to/file.stub'));
 
-        $this->assertStringContainsString('path_example', (string) $stub);
-    }
+        $stub->setVariable('KEY', $word);
 
-    public function test_put(): void
-    {
-        Laragenius::forceOverwrite();
+        $stub->fill();
 
-        $stub = new Stub('use');
-
-        $stub->put('file-use');
-
-        $this->assertFileExists(base_path('file-use.php'));
+        $this->assertEquals('stub ' . $word, $stub->getContent());
     }
 }

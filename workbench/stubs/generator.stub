@@ -4,10 +4,10 @@ namespace {{ NAMESPACE }};
 
 class {{ STUDLY_NAME }}
 {
-    public function index()
+    public function index(): void
     {
         $table_name = '{{ TABLE_NAME }}';
-        
+
         $table_studly_name = '{{ TABLE_STUDLY_NAME }}';
     }
 }

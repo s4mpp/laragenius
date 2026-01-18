@@ -2,84 +2,103 @@
 
 namespace S4mpp\Laragenius\Tests\Feature;
 
+use stdClass;
 use S4mpp\Laragenius\Stub;
+use Illuminate\Support\Str;
 use S4mpp\Laragenius\Laragenius;
 use S4mpp\Laragenius\Tests\TestCase;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
 use S4mpp\Laragenius\Generators\Model;
+use Illuminate\Support\Facades\Storage;
 use S4mpp\Laragenius\Generators\Seeder;
 use S4mpp\Laragenius\Generators\Factory;
+use Workbench\App\Laragenius\CustomGenerator;
 use Orchestra\Testbench\Concerns\WithWorkbench;
 
 class MakeCommandTest extends TestCase
 {
     use WithWorkbench;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         Laragenius::flushGenerators();
     }
 
-    //TODO generate one test for each generator
-    public function test_make_command(): void
+    public static function generatorProvider(): array
+    {
+        return [
+            'model' => [Model::class, 'app/Models/Example.php', 'Example'],
+            'seeder' => [Seeder::class, 'database/seeders/ExampleSeeder.php', 'ExampleSeeder'],
+            'factory' => [Factory::class, 'database/factories/ExampleFactory.php', 'ExampleFactory'],
+        ];
+    }
+
+    /**
+     * @dataProvider generatorProvider
+     */
+    public function test_make_command(string $generator, string $file, string $class_name): void
     {
         Schema::create('examples', function ($table): void {
             $table->increments('id');
-            $table->foreignId('user_id')->references('id')->on('users');
-            $table->string('name');
-            $table->date('date');
-            $table->datetime('datetime')->nullable();
-            $table->decimal('value', 10, 2);
-            $table->integer('order');
-            $table->tinyInteger('level');
-            $table->text('bio');
-            $table->string('password');
-            $table->string('token')->unique();
-            $table->string('phone');
-            $table->string('field')->unique();
-            $table->binary('file')->nullable();
-            $table->binary('photo');
-            $table->string('email');
-
-            $table->index(['name']);
         });
 
-        Schema::create('table_example_childs', function ($table): void {
-            $table->increments('id');
-            $table->foreignId('table_example_id')->references('id')->on('examples');
-            $table->foreignId('table_example_email')->references('email')->on('examples');
-        });
+        $command = $this->artisan('lg:make', ['table_name' => 'examples', '--force' => true]);
 
-        $command = $this->artisan('lg:make', ['table' => 'examples', '--force' => true]);
-
-        $command->expectsChoice('Select the resources', [Model::class, Seeder::class, Factory::class], array_merge(['', 0, 1, 2, 'None'], Laragenius::getGenerators()))
-            ->expectsOutputToContain('File [app/Models/Example.php] created.')
-            ->expectsOutputToContain('File [database/seeders/ExampleSeeder.php] created.')
-            ->expectsOutputToContain('File [database/factories/ExampleFactory.php] created.')
-            ->assertSuccessful();      
-
-        //TODO test content of files
-        $this->assertFileExists(base_path('app/Models/Example.php'));
-        $this->assertFileExists(base_path('database/seeders/ExampleSeeder.php'));
-        $this->assertFileExists(base_path('database/factories/ExampleFactory.php'));
+        $command->expectsChoice(
+            question: 'Selecione os geradores',
+            answer: $generator,
+            answers: array_merge(['', 0, 1, 2, 'None'], Laragenius::getGenerators()),
+            strict: true,
+        )
+            ->expectsOutputToContain('Arquivo [' . $file . '] criado.')
+            ->assertSuccessful();
     }
 
     public function test_make_command_with_table_nonexistent(): void
     {
-        $command = $this->artisan('lg:make', ['table' => 'xxxxxx']);
+        $command = $this->artisan('lg:make', ['table_name' => 'xxxxxx']);
 
-        $command->expectsOutputToContain('Table xxxxxx not found')->doesntExpectOutputToContain('created')->assertFailed();
+        $command->expectsOutputToContain('Tabela [xxxxxx] não encontrada')->assertFailed();
     }
 
     public function test_select_invalid_resource(): void
     {
-        Laragenius::addGenerator(Stub::class);
+        Laragenius::addGenerator(stdClass::class);
 
-        $command = $this->artisan('lg:make', ['table' => 'users']);
+        $command = $this->artisan('lg:make', ['table_name' => 'users']);
 
-        $command->expectsChoice('Select the resources', [Stub::class], array_merge(['', 0, 1, 2, 3, 'None'], Laragenius::getGenerators()))
-            ->expectsOutputToContain('is not a generator')->doesntExpectOutputToContain('created')->assertFailed();
+        $command->expectsChoice(
+            question: 'Selecione os geradores',
+            answer: [stdClass::class],
+            answers: array_merge(['', 0, 1, 2, 3, 'None'], Laragenius::getGenerators()),
+            strict: true,
+        )->expectsOutputToContain('não é um gerador válido')->assertFailed();
+    }
+
+    public function test_do_not_overwrite_existing_file(): void
+    {
+        $table_name = fake()->word();
+
+        Schema::create($table_name, function ($table): void {
+            $table->increments('id');
+        });
+
+        $path = base_path('app/Generated/CustomGenerated.php');
+
+        file_put_contents($path, 'fake content');
+
+        $command = $this->artisan('lg:make', ['table_name' => $table_name]);
+
+        $command->expectsChoice(
+            question: 'Selecione os geradores',
+            answer: [CustomGenerator::class],
+            answers: array_merge(['', 0, 1, 2, 'None'], Laragenius::getGenerators()),
+            strict: true,
+        )->expectsOutputToContain('Arquivo [app/Generated/CustomGenerated.php] já existe')->assertFailed();
+
+        $this->assertStringContainsString('fake content', file_get_contents($path));
     }
 }

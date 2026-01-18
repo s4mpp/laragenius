@@ -10,27 +10,13 @@ class ColumnTest extends TestCase
 {
     public function test_create_instance(): void
     {
-        $column = new Column('name', ColumnType::Varchar);
+        $column = new Column('name', false, false, ColumnType::Varchar);
 
         $this->assertEquals('name', $column->getName());
-        $this->assertEquals(ColumnType::Varchar, $column->getType());
-    }
-
-    public function test_unique(): void
-    {
-        $column = new Column('name', ColumnType::Varchar);
-
-        $column->setUnique(true);
-
-        $this->assertTrue($column->isUnique());
-    }
-
-    public function test_nullable(): void
-    {
-        $column = new Column('name', ColumnType::Varchar);
-
-        $column->setNullable(false);
-
+        $this->assertFalse($column->isUnique());
         $this->assertFalse($column->isNullable());
+        $this->assertEquals(ColumnType::Varchar, $column->getType());
+
+        //TODO test get relationships
     }
 }

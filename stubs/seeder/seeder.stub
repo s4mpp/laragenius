@@ -6,7 +6,7 @@ namespace {{ NAMESPACE }};
 
 class {{ MODEL_NAME }}Seeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         {{ MODEL_NAME }}::factory()->count(10)->create();
     }

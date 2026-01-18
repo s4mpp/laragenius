@@ -9,9 +9,7 @@ use S4mpp\Laragenius\Enums\RelationshipType;
 
 final class Table
 {
-    public function __construct(private string $name)
-    {
-    }
+    public function __construct(private string $name) {}
 
     public function getName(): string
     {
@@ -31,6 +29,7 @@ final class Table
         $columns = Schema::getColumns($this->name);
 
         //------------------
+        //TODO  move to $this->getUniqueKeys()
         $keys = Schema::getIndexes($this->name);
 
         $uniques = [];
@@ -46,7 +45,7 @@ final class Table
         }, $keys);
 
         //------------------
-
+        //TODO  move to $this->getRelationships()
         $relationships = [];
 
         $tables = Schema::getTableListing();

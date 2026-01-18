@@ -27,7 +27,7 @@ class MakeCommand extends Command
 
         try {
             if (! is_string($table_name)) {
-                throw new \Exception('Table must be a string');
+                throw new \Exception('Nome da tabela precisa ser uma string');
             }
 
             if (! Schema::hasTable($table_name)) {
@@ -45,9 +45,15 @@ class MakeCommand extends Command
                 /** @var Generator $instance */
                 $instance = new $generator($table_instance);
 
-                $file_path = implode('/', array_filter([Laragenius::getBasePath(), $instance->getDestinationPath(), $instance->getFilename().'.php']));
+                $destination_path = $instance->getDestinationPath();
 
-                if (! $force_overwrite && $filesystem->exists($file_path)) {
+                $base_path = Laragenius::getOutputPath();
+
+                $file_path = $destination_path.'/'.$instance->getFilename().'.php';
+
+                $full_path = $base_path.'/'.$file_path;
+
+                if (! $force_overwrite && $filesystem->exists($full_path)) {
                     throw new \Exception('Arquivo ['.$file_path.'] já existe');
                 }
 
@@ -57,9 +63,9 @@ class MakeCommand extends Command
 
                 $stub->fill();
 
-                $filesystem->ensureDirectoryExists(Laragenius::getBasePath().'/'.$instance->getDestinationPath());
+                $filesystem->ensureDirectoryExists($base_path.'/'.$destination_path);
 
-                $saved = $filesystem->put($file_path, $stub->getContent());
+                $saved = $filesystem->put($full_path, $stub->getContent());
 
                 if (! $saved) {
                     throw new \Exception('Falha ao criar o arquivo.');
@@ -81,10 +87,12 @@ class MakeCommand extends Command
      */
     private function selectGenerators(Table $table_instance): array
     {
+        $generators = Laragenius::getGenerators();
+
         return multiselect(
             label: 'Selecione os geradores',
             required: true,
-            options: Laragenius::getGenerators(),
+            options: $generators,
             validate: function ($generators) use ($table_instance): ?string {
                 foreach ($generators as $generator) {
 

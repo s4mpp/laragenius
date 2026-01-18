@@ -8,8 +8,8 @@ class {{ MODEL_NAME }} extends Model
 {
     /** @use HasFactory<{{ MODEL_NAME }}Factory> */
     use HasFactory;
-    
+
     {{ CASTS }}
-    
+
     {{ RELATIONSHIPS }}
 }

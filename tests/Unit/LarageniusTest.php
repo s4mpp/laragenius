@@ -15,7 +15,6 @@ class LarageniusTest extends TestCase
 
         $generators = Laragenius::getGenerators();
 
-        $this->assertIsArray($generators);
         $this->assertCount(4, $generators);
         $this->assertContains('TestGenerator', $generators);
     }

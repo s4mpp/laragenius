@@ -7,7 +7,7 @@ use S4mpp\Laragenius\Utils;
 use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Contracts\Generator;
 
-final class SeederGenerator implements Generator
+final class Seeder implements Generator
 {
     public function __construct(private Table $table)
     {

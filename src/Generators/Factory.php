@@ -9,7 +9,7 @@ use S4mpp\Laragenius\Schema\Column;
 use S4mpp\Laragenius\Contracts\Generator;
 use S4mpp\Laragenius\Enums\RelationshipType;
 
-final class FactoryGenerator implements Generator
+final class Factory implements Generator
 {
     public function __construct(private Table $table)
     {

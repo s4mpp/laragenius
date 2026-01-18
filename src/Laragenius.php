@@ -2,10 +2,9 @@
 
 namespace S4mpp\Laragenius;
 
-use Illuminate\Filesystem\Filesystem;
-use S4mpp\Laragenius\Generators\ModelGenerator;
-use S4mpp\Laragenius\Generators\SeederGenerator;
-use S4mpp\Laragenius\Generators\FactoryGenerator;
+use S4mpp\Laragenius\Generators\Model;
+use S4mpp\Laragenius\Generators\Seeder;
+use S4mpp\Laragenius\Generators\Factory;
 
 final class Laragenius
 {
@@ -14,29 +13,31 @@ final class Laragenius
      */
     private static array $generators = [];
 
-    private static string $base_path;
-
-    // private static bool $force_overwrite = false;
-
-    // public static function forceOverwrite(bool $force = true): void
-    // {
-    //     self::$force_overwrite = $force;
-    // }
+    private static string $output_path;
 
     public static function addGenerator(string $generator): void
     {
+        if (in_array($generator, self::$generators)) {
+            return;
+        }
+
         self::$generators[] = $generator;
     }
 
-    public static function setBasePath(string $path): void
+    public static function flushGenerators(): void
     {
-        self::$base_path = $path;
+        self::$generators = [];
     }
 
-    public static function getBasePath(): string
+    public static function setOutputPath(string $path): void
     {
-        if (isset(self::$base_path)) {
-            return self::$base_path;
+        self::$output_path = $path;
+    }
+
+    public static function getOutputPath(): string
+    {
+        if (isset(self::$output_path)) {
+            return self::$output_path;
         }
 
         return base_path();
@@ -48,38 +49,11 @@ final class Laragenius
     public static function getGenerators(): array
     {
         $built_in_generators = [
-            ModelGenerator::class,
-            FactoryGenerator::class,
-            SeederGenerator::class,
+            Model::class,
+            Factory::class,
+            Seeder::class,
         ];
 
         return array_merge($built_in_generators, self::$generators);
     }
-
-    // public static function createFile(string $filename, string $content): string
-    // {
-    //     $filesystem = new Filesystem;
-
-    //     $path = implode('/', array_filter([self::getBasePath(), $filename.'.php']));
-
-    //     // if (! Laragenius::isForcingOverwrite() && $filesystem->exists($full_path)) {
-    //     //     throw new \Exception('File already exists');
-    //     // }
-
-    //     // TODO create folder if not exists
-
-    //     $filesystem->put($path, $content);
-
-    //     return $path;
-    // }
-
-    // public static function flushGenerators(): void
-    // {
-    //     self::$generators = [];
-    // }
-
-    // public static function isForcingOverwrite(): bool
-    // {
-    //     return self::$force_overwrite;
-    // }
 }

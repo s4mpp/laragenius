@@ -2,6 +2,7 @@
 
 namespace S4mpp\Laragenius\Tests\Unit\Generators;
 
+use S4mpp\Laragenius\Stub;
 use S4mpp\Laragenius\Schema\Table;
 use S4mpp\Laragenius\Tests\TestCase;
 use Illuminate\Support\Facades\Schema;
@@ -9,36 +10,32 @@ use S4mpp\Laragenius\Generators\Seeder;
 
 class SeederTest extends TestCase
 {
-    public function test_get_filename(): void
+    public function test_get_basic_data(): void
     {
-        Schema::create('tbl-example', fn ($table) => $table->increments('id'));
+        Schema::create('table-example', fn($table) => $table->increments('id'));
 
-        $seeder = new Seeder(new Table('tbl-example'));
+        $seeder = new Seeder(new Table('table-example'));
 
-        $this->assertEquals('Database\Seeders', $seeder->getNamespace());
-        $this->assertEquals('TblExampleSeeder', $seeder->getFileName());
+        $this->assertEquals('database/seeders', $seeder->getDestinationPath());
+        $this->assertEquals('TableExampleSeeder', $seeder->getFilename());
+        $this->assertStringContainsString('/../../stubs/seeder/seeder.stub', $seeder->getStubFile());
     }
 
-    public function test_get_content(): void
+    public function test_mount_file(): void
     {
-        Schema::create('mains', function ($table): void {
-            $table->increments('id');
-        });
-
         Schema::create('seeder-childs', function ($table): void {
-            $table->foreignId('main_id')->references('id')->on('mains');
-            $table->string('email');
-        });
-
-        Schema::create('sub_childs', function ($table): void {
-            $table->string('child_email');
-            $table->foreign('child_email')->references('email')->on('seeder-childs');
+            $table->increments('id');
         });
 
         $seeder = new Seeder(new Table('seeder-childs'));
 
-        $content = (string) $seeder->getContent();
+        $stub = new Stub($seeder->getStubFile());
 
-        $this->assertStringContainsString("factory()->create()", $content);
+        $seeder->mountFile($stub);
+
+        $content = $stub->fill()->getContent();
+
+        $this->assertStringContainsString("class SeederChildSeeder extends Seeder", $content);
+        $this->assertStringContainsString("SeederChild::factory()->count(10)->create()", $content);
     }
 }
