@@ -11,12 +11,12 @@ use S4mpp\Laragenius\Enums\RelationshipType;
 
 final class Factory implements Generator
 {
+    /** @var array<string> */
+    private array $uses = ['Illuminate\Database\Eloquent\Factories\Factory'];
+    
     public function __construct(private Table $table)
     {
     }
-
-    /** @var array<string> */
-    private array $uses = ['Illuminate\Database\Eloquent\Factories\Factory'];
 
     public function getDestinationPath(): string
     {

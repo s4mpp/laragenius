@@ -9,15 +9,15 @@ use S4mpp\Laragenius\Contracts\Generator;
 
 final class Model implements Generator
 {
-    public function __construct(private Table $table)
-    {
-    }
-
     /** @var array<string> */
     private array $uses = [
         'Illuminate\Database\Eloquent\Model',
         'Illuminate\Database\Eloquent\Factories\HasFactory',
     ];
+    
+    public function __construct(private Table $table)
+    {
+    }
 
     public function getDestinationPath(): string
     {
