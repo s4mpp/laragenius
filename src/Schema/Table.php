@@ -48,7 +48,7 @@ final class Table
         //TODO  move to $this->getRelationships()
         $relationships = [];
 
-        $tables = Schema::getTableListing();
+        $tables = Schema::getTableListing(schemaQualified: false);
 
         array_map(function ($table_name) use (&$relationships): void {
             $foreign_keys = Schema::getForeignKeys($table_name);

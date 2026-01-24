@@ -14,6 +14,7 @@ enum ColumnType: string
     case Numeric = 'numeric';
     case Varchar = 'varchar';
     case Datetime = 'datetime';
+    case Float = 'float';
     case Timestamp = 'timestamp';
     case Date = 'date';
     case Text = 'text';
@@ -29,6 +30,7 @@ enum ColumnType: string
             self::TinyInt => 'randomInteger',
             self::Numeric => 'randomFloat',
             self::Decimal => 'randomFloat',
+            self::Float => 'randomFloat',
             self::Varchar => 'word',
             self::Char => 'word',
             self::Datetime => 'dateTime',
