@@ -14,12 +14,12 @@ enum ColumnType: string
     case Numeric = 'numeric';
     case Varchar = 'varchar';
     case Datetime = 'datetime';
-    case Float = 'float';
     case Timestamp = 'timestamp';
     case Date = 'date';
     case Text = 'text';
     case Char = 'char';
     case Json = 'json';
+    case Float = 'float';
 
     public function faker(): string
     {
